@@ -1,0 +1,92 @@
+{% load collaborative_crm_extras %}
+
+<div class="modal fade file-modal" id="file-modal" aria-labelledby="myModalLabel" property-id="{{property.id}}">
+    <div class="modal-dialog files" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-file-excel-o"></i> <i class="fa fa-file-pdf-o"></i> {{property}} - Ficha Excel / PDF</h4>
+            </div>
+            <div class="modal-body panel-heading body-content">
+                <label>Opciones generales</label><br>
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-success btn-sm active">
+                        <i class="fa fa-file-excel-o"></i>
+                        <input id="excel-format" type="checkbox" checked> Excel
+                    </label>
+                    <label class="btn btn-danger btn-sm">
+                        <i class="fa fa-file-pdf-o"></i>
+                        <input id="pdf-format" type="checkbox"> PDF
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="hide-exact-address" name="hide-exact-address" type="checkbox" checked>
+                        Ocultar dirección exacta
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="include-images" name="include-images" type="checkbox" checked>
+                        Incluir imágenes
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="include-cover-image" name="include-cover-image" type="checkbox" checked>
+                        Incluir imagen de portada
+                    </label>
+                </div>
+                <hr>
+                <label>Opciones  de envío por email</label>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6 col-xs-12">
+                            <label for="users-to">Enviar a</label>&nbsp;<sup>*se muestran contactos con email y otros usuarios de la empresa</sup><br>
+                            <select id="users-to" name="users-to" multiple>
+                                {% for contact in all_contacts_with_email %}
+                                    <option value="contact-{{contact.id}}" type="contact" {% if contact|is_interested:property %} class="interested"{% endif %}{% if contact == selected_contact %} selected{% endif %}>{{contact}} ({{contact.email}})</option>
+                                {% endfor %}
+                                {% for usr in all_users_but_me %}
+                                    <option value="user-{{usr.id}}" type="user">{{usr.full_name}} ({{usr.username}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <aside>
+                        <button id="clean-users-to-selection" class="btn btn-danger btn-xs">Limpiar</button>
+                        <button id="include-all-interested" class="btn btn-success btn-xs">Incluir a todos los contactos interesados</button>
+                        <button id="include-all-users" class="btn btn-warning btn-xs">Incluir a todos los usuarios de mi empresa</button>
+                    </aside>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="send-to-myself" name="send-to-myself" type="checkbox" checked>
+                        Enviarme una copia
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="include-email" name="include-email" type="checkbox" checked>
+                        Incluir mi email
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="include-telephone-number" name="include-telephone-number" type="checkbox" checked>
+                        Incluir mi teléfono
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="email-message">Incluir un mensaje en el email</label>&nbsp;<sup>*opcional</sup>
+                    <textarea id="email-message" name="email-message" rows="4" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer panel-heading">
+                <button id="send-email" class="btn btn-primary"><i class="fa fa-envelope"></i> Enviar</button>
+                <button id="download" class="btn btn-success" file-name="{% if property.anonymous_address %}{{property.anonymous_address|slugify}}{% else %}{{property.street|add:' '|add:property.number|slugify}}{% endif %}"><i class="fa fa-download"></i> Descargar</button>
+                <button class="btn btn-default" data-dismiss="modal">Volver</button>
+            </div>
+        </div>
+    </div>
+</div>

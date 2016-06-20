@@ -1,0 +1,39 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+<div class="search-results">
+    {% for result in results %}
+        <div class="search-result">
+            <a href="{{result.url}}" class="search-item" id="{{result.id}}" type="{{result|class_name|lower}}" search-item-order="{{forloop.counter}}">
+                {% if result|class_name == 'Contact' %}
+                    <img src="/static/collaborative_crm/images/misc/default_user.png">
+                    <div class="data">
+                        {{result|full_name_with_text_search_matches:search_term|safe}}&nbsp;
+                        <a class="extra-data">
+                            {{result|email_with_text_search_matches:search_term|safe}}
+                        </a>&nbsp;
+                        {% with do_not_load_actions=True contact=result font_size='10.5' no_border=True %}{% include 'collaborative_crm/contact_status.html' %}{% endwith %}
+                        <br>
+                        <a class="extra-data">
+                            {% if result.user %}Agente a cargo: <b>{{result.user.full_name}}</b>{% endif %}
+                            {% if result.user and result.telephone_number %}&nbsp;&nbsp;|&nbsp;&nbsp;{% endif %}
+                            {% if result.telephone_number %}Tél: <b>{{result.telephone_number}}</b>{% endif %}
+                        </a>
+                    </div>
+                {% elif result|class_name == 'Property' %}
+                    <img src="{{result.cover_image.image_url|default:'/static/collaborative_crm/images/misc/default_property.png'}}">&nbsp;
+                    <div class="data">
+                        {{result|full_name_with_text_search_matches:search_term|safe}}&nbsp;
+                        <span class="label label-{% if result.status.id == 2 %}danger{% elif result.status.id == 3 %}warning{% elif result.status.id == 1 %}success{% else %}primary{% endif %}">
+                            {{result.status.name}}
+                        </span>
+                        <br>
+                        <a class="extra-data">
+                            {% if result.user %}Agente a cargo: <b>{{result.user.full_name}}</b>{% endif %}
+                        </a>
+                    </div>
+                {% endif %}
+            </a>
+        </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,51 @@
+<div class="modal fade filter-history-modal" id="filter-history-modal" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-heading">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Filtrar historial</h4>
+            </div>
+            <div class="modal-body panel-heading">
+                <div class="row">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label for="date-from">Desde <i class="fa fa-times clear-values"></i></label>
+                            <input type="text" class="form-control" id="date-from" name="date-from" placeholder="Desde">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <label for="date-to">Hasta <i class="fa fa-times clear-values"></i></label>
+                            <input type="text" class="form-control" id="date-to" name="date-to" placeholder="Hasta">
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="types">Tipos <i class="fa fa-times clear-values"></i></label>
+                            <select class="form-control" id="types" name="types" placeholder="Tipos" multiple>
+                                {% for type in history_types %}
+                                    <option value="{{type.id}}">{{type.description}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label for="users">Agentes <i class="fa fa-times clear-values"></i></label>
+                            <select class="form-control" id="users" name="users" placeholder="Agentes" multiple>
+                                {% for usr in users %}
+                                    <option value="{{usr.id}}">{{usr.full_name}} ({{usr.username}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer panel-heading">
+                <button id="filter-history" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-filter"></i> Aplicar</button>
+                <button id="remove-history-filters" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Quitar</button>
+                <button class="btn btn-default" data-dismiss="modal">Volver</button>
+            </div>
+        </div>
+    </div>
+</div>

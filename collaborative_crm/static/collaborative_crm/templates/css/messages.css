@@ -1,0 +1,28 @@
+.chat div.item.not-last {
+    border-bottom: 1px #d2d6de dotted
+}
+
+.chat.conversations {
+    padding: 0px;
+}
+
+.conversations div.item, div#new-conversation {
+    margin-bottom: 0px;
+    padding: 5px 20px 5px 10px;
+}
+
+div#new-conversation {
+    height: 34px;
+}
+
+.conversations div.selected {
+    background-color: #f5f6ce;
+}
+
+.conversations .text-muted {
+    color: #df0101;
+}
+
+.conversations a, a#add-conversation {
+    cursor: pointer;
+}

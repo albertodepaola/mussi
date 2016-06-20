@@ -1,0 +1,127 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+<div class="modal fade contact-details-modal" id="contact-details-modal" aria-labelledby="myModalLabel">
+    <div class="modal-dialog contact-details" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-heading" id="modal-title-panel">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                {% if relationship %}<h6 class="modal-title" id="contact-modal-subtitle">{{relationship.type.description}}</h6>{% endif %}
+                <h4 class="modal-title" id="contact-modal-title">{{contact.full_name}} <a id="edit-contact" href="{{contact.url}}" target="_blank"><i class="fa fa-edit"></i></a></h4>
+            </div>
+            <div class="modal-body panel-heading">
+                <div class="row body-content">
+                    <div class="col-md-4 col-sm-6 hidden-xs">
+                        <div class="box box-default">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"> </h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="img-thumbnail contact">
+                                </img>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-sm-6 col-xs-12 contact-info-col">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"> Datos del contacto</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-sm-6 col-xs-12">
+                                        <div id="first-name"><label class="attribute-title">Nombre</label><br>{{contact.first_name|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6 col-xs-12">
+                                        <div id="last-name"><label class="attribute-title">Apellido</label><br>{{contact.last_name|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6 col-xs-12">
+                                        <div id="telephone-number"><label class="attribute-title">Teléfono</label><br>{{contact.telephone_number|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6 col-xs-12">
+                                        <div id="email"><label class="attribute-title">E-Mail</label><br>{{contact.email|default:'-'}}</div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="country"><label class="attribute-title">País</label><br>{{contact.country.name|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="state"><label class="attribute-title">Provincia/Estado</label><br>{{contact.state.name|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="city"><label class="attribute-title">Ciudad</label><br>{{contact.city.name|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="neighborhood"><label class="attribute-title">Barrio/Zona</label><br>{{contact.neighborhood.name|default:'-'}}</div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="address"><label class="attribute-title">Dirección</label><br>{{contact.address|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="document"><label class="attribute-title">Documento</label><br>{{contact.document|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="works-at"><label class="attribute-title">Empresa</label><br>{{contact.works_at|default:'-'}}</div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div id="alternative-telephone-number"><label class="attribute-title">Teléfono alternativo</label><br>{{contact.alternative_telephone_number|default:'-'}}</div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div id="alternative-email"><label class="attribute-title">Documento alternativo</label><br>{{contact.alternative_email|default:'-'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if relationship %}
+                        <div class="col-xs-12 relationship-info-col{% if can_edit %} can-edit{% endif %}">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div id="relationship-info-box" class="box box-success">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"> Información</h3>
+                                            <div class="box-tools pull-right">
+                                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="row">
+                                                <div class="col-sm-9 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="commentary">Comentarios</label>
+                                                        <textarea type="text" rows="4" class="form-control" id="commentary" name="commentary" placeholder="Comentarios" contact-id="{{contact.id}}" property-id="{{relationship.parent_property_id}}"{% if not can_edit %} disabled{% endif %}>{{relationship.commentary}}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3 col-xs-12">
+                                                    <div id="last-modified-datetime"><label class="attribute-title">Última actualizacion</label><br><p class="value">{{relationship.last_modified_datetime|utc_to_local_tz:'%d/%m/%Y %H:%M:%S'}}</p></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer panel-heading">
+                {% if relationship and can_edit %}<button class="btn btn-danger unbind" data-dismiss="modal" contact-id="{{contact.id}}" property-id="{{relationship.parent_property_id}}"><i class="fa fa-unlink"></i> Desvincular</button>{% endif %}
+                <button class="btn btn-default" data-dismiss="modal">Volver</button>
+            </div>
+        </div>
+    </div>
+</div>

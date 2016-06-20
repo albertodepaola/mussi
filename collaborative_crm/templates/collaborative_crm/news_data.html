@@ -1,0 +1,82 @@
+{% load collaborative_crm_extras %}
+
+{% if news %}
+    {% for week in news %}
+        <div class="week" week-order="{{week.order}}">
+            {% if week.order == 0 %}
+                <label class="news-week" week-order="{{week.order}}">Ésta semana</label>
+            {% elif week.order == 1 %}
+                <label class="news-week" week-order="{{week.order}}">La semana pasada</label>
+            {% else %}
+                <label class="news-week" week-order="{{week.order}}">Hace {{week.order}} semanas</label>
+            {% endif %}
+            <br><br>
+            <div class="row news-row">
+                {% for obj in week.objects %}
+                    <div class="col-lg-6 col-xs-12 news-box-col">
+                        {% if obj.entity == 'propiedades' %}
+                            <div class="box box-success property">
+                                <div class="box-header with-border news-box-header">
+                                    <h5 class="box-title">
+                                        <b> {{obj.object.anonymous_address|default:obj.object}}</b>&nbsp;&nbsp;
+                                    </h5>
+                                    <a class="show-property-details small" property-id="{{obj.object.id}}"><b>Ver</b></a>
+                                    <div class="pull-right">
+                                        <span class="label label-{% if obj.object.status.id == 2 %}danger{% elif obj.object.status.id == 3 %}warning{% elif obj.object.status.id == 1 %}success{% else %}primary{% endif %}">
+                                            {{obj.object.status.name}}
+                                        </span>
+                                    </div>
+                                    <div class="box-tools pull-right">
+                                    </div>
+                                </div>
+                        {% elif obj.entity == 'contactos' %}
+                            <div class="box box-warning contact">
+                                <div class="box-header with-border news-box-header">
+                                    <h5 class="box-title">
+                                        <b> {{obj.object}}</b>&nbsp;&nbsp;
+                                    </h5>
+                                    <a class="show-contact-details small" contact-id="{{obj.object.id}}"><b>Ver</b></a>
+                                    <div class="box-tools pull-right">
+                                    </div>
+                                </div>
+                        {% endif %}
+                            <div class="box-body news-box-body">
+                                <div class="news-data">
+                                    {% if obj.entity == 'propiedades' %}
+                                        {% with property=obj.object %}
+                                            <div class="property-data">
+                                                <div>
+                                                    {% include 'collaborative_crm/property_details.html' %}
+                                                </div>
+                                            </div>
+                                        {% endwith %}
+                                    {% elif obj.entity == 'contactos' %}
+                                        {% with contact=obj.object %}
+                                            <div class="contact-data">
+                                                <div>
+                                                    <b>Tél: </b>{{contact.telephone_number|default:'-'}}<br>
+                                                    <b>Email: </b>{{contact.email|default:'-'}}
+                                                </div>
+                                            </div>
+                                            <br>
+                                        {% endwith %}
+                                    {% endif %}
+                                    <b>{{obj.entries|length}} actulizaci{% if obj.entries|length > 1 %}ones{% else %}ón{% endif %}</b>
+                                    <br>
+                                    {% for entry in obj.entries %}
+                                        <a class="small"{% if obj.entity == 'propiedades' %} property-id="{{obj.object.id}}" {% elif obj.entity == 'contactos' %} contact-id="{{obj.object.id}}" {% endif %}history-entry-id="{{entry.id}}">&bull;&nbsp;{{entry.html_short_description|safe}}</a>
+                                        <br>
+                                    {% endfor %}
+                                </div>
+                                <img src="{% if obj.entity == 'propiedades' %}{{obj.object.cover_image.image_url|default:'/static/collaborative_crm/images/misc/default_property.png'}}{% elif obj.entity == 'contactos' %}/static/collaborative_crm/images/misc/default_user.png{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <br>
+        </div>
+    {% endfor %}
+{% else %}
+    <label>No hay novedades para su empresa con los criterios seleccionados</label>
+{% endif %}

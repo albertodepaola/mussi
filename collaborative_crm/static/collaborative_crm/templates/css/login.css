@@ -1,0 +1,24 @@
+a {
+    cursor: pointer;
+}
+
+.awesome-icon {
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.fa-times:hover {
+    color: red;
+}
+
+.fa-plus:hover {
+    color: blue;
+}
+
+span#reset-password-email {
+    cursor: pointer;
+}
+
+span#reset-password-email:hover {
+    color: #8A6D3A !important;
+}

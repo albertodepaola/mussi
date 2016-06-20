@@ -1,0 +1,28 @@
+.group-config-alert {
+    padding: 5px;
+}
+
+label.radio {
+    font-size: 12px;
+    font-weight: normal;
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+input[type=radio]{
+    margin-left: -15px;
+    margin-top: 0px;
+    cursor: pointer;
+}
+
+#remove-workflow {
+    color: #a94442;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#remove-workflow:hover {
+    text-decoration: underline;
+}

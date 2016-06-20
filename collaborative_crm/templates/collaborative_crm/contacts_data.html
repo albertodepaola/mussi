@@ -1,0 +1,40 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+<div id="contact-results">
+    {% if contacts %}
+        <div class="row">
+            {% for contact in contacts %}
+                <div class="col-lg-4 col-md-6 col-xs-12 contact-box-col">
+                    <div class="box box-warning">
+                        <div class="box-header with-border contact-box-header">
+                            <h3 class="box-title"><b>{{contact}}</b></h3>&nbsp;&nbsp;
+                            <a class="show-contact-details" contact-id="{{contact.id}}">Ver</a>
+                            <div class="pull-right">{% with do_not_load_actions=True font_size='10.5' no_border=True %}{% include 'collaborative_crm/contact_status.html' %}{% endwith %}</div>
+                        </div>
+                        <div class="box-body contact-box-body">
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-3">
+                                    <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}"/>
+                                </div>
+                                <div class="col-sm-8 col-xs-9">
+                                    <div class="contact-data">
+                                        <div>
+                                            <b>{{contact}}</b>
+                                            {% if contact.neighborhood or contact.city %}, {% endif %}{{contact.neighborhood.name|default:''}}{% if contact.neighborhood and contact.city %}, {% endif %}{{contact.city.name|default:''}}<br>
+                                            {{contact.state.name|default:''}}{% if contact.state and contact.country %}, {% endif %}{{contact.country.name|default:''}}<br>
+                                            {% if contact.email %}<br>{{contact.email}}{% endif %}
+                                            {% if contact.telephone_number %}<br>{{contact.telephone_number}}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <label>No hay resultados con los criterios seleccionados</label>
+    {% endif %}
+</div>

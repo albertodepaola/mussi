@@ -1,0 +1,17 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% for message in conversation.message_set.all|sort_by:'timestamp' %}
+    <div class="item {% if forloop.counter < conversations.0.message_set.all|length %}not-last{% else %}last{% endif %}">
+        <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="online">
+        <p class="message">
+            <a class="name">
+                <small class="text-muted pull-right"><i class="fa fa-clock-o"></i> {{message.timestamp|utc_to_local_tz:'%d/%m/%Y %H:%M:%S'}}</small>
+                {{message.user_from|name_me_reversed:user}}
+            </a>
+            <small>
+                {{message.content}}
+            </small>
+        </p>
+    </div>
+{% endfor %}

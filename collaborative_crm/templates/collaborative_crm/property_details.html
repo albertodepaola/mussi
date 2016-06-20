@@ -1,0 +1,12 @@
+{% load humanize %}
+
+<b>{{property}}</b>{% if property.neighborhood %}, {{property.neighborhood.name}}{% endif %}, {{property.city.name}}<br>
+{{property.city.state.name}}, {{property.city.state.country.name}}<br>
+{% if property.for_sale %}
+    <br>En venta:{% if property.sale_price %} $ {{property.sale_price|intcomma}} {% endif %}{% if property.sale_price and property.sale_price_usd %}/{% endif %}{% if property.sale_price_usd %} US$ {{property.sale_price_usd|intcomma}} {% endif %}
+{% endif %}
+{% if property.for_rent %}
+    <br>En alquiler:{% if property.rent_price %} $ {{property.rent_price|intcomma}} {% endif %}{% if property.rent_price and property.rent_price_usd %}/{% endif %}{% if property.rent_price_usd %} US$ {{property.rent_price_usd|intcomma}} {% endif %}
+{% endif %}
+<br>{% if not property.attributes_string %}{% if property.for_sale or property.for_rent %}<br>{% endif %}{% endif %}
+{% if property.attributes_string %}<br><b><p class="property-attributes">{{property.attributes_string|safe}}</p></b>{% endif %}

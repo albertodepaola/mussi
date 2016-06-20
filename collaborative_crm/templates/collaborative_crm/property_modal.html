@@ -1,0 +1,204 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+{% load humanize %}
+
+<div class="modal fade property-details-modal" id="property-details-modal" aria-labelledby="myModalLabel">
+    <div class="modal-dialog property-details" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-heading" id="modal-title-panel">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                {% if contact_property_rel %}<h6 class="modal-title" id="property-modal-subtitle">{{contact_property_rel.type.description}}</h6>{% endif %}
+                <h4 class="modal-title" id="property-modal-title">{{property}} <a id="edit-property" href="{{property.url}}" target="_blank"><i class="fa fa-edit"></i></a></h4>
+            </div>
+            <div class="modal-body panel-heading">
+                <div class="row body-content">
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="box box-default">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"> Imágenes</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <img id="property-cover-img" src="{% if property.cover_image %}{{property.cover_image.image_url}}{% else %}{% static 'collaborative_crm/images/misc/default_property.png' %}{% endif %}" class="img-thumbnail property {% if property.images %}images{% else %}no-images{% endif %}">
+                                </img>
+                            </div>
+                        </div>
+                        {% if can_edit %}
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"> Dueño</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body chat">
+                                    <div class="item">
+                                        <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="chat-warning">
+                                        <p class="message">
+                                            {% if property.owner %}
+                                                <a class="name" id="owner">{{property.owner.contact.full_name}}</a>
+                                                <small>
+                                                    {{property.owner.contact.telephone_number|default:''}}{% if property.owner.contact.telephone_number and property.owner.contact.email %}<br>{% endif %}
+                                                    {{property.owner.contact.email|default:''}}
+                                                </small>
+                                            {% else %}
+                                                <b>Dueño no asignado</b>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8 col-sm-6 col-xs-12">
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"> Datos de la propiedad</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <div class="row">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div id="type"><label class="attribute-title">Tipo</label><br><p class="value">{{property.type.description|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div id="status"><label class="attribute-title">Estado</label><br><p class="value">{{property.status.name|default:'-'}}</p></div>
+                                    </div>
+                                </div>
+                                <div class="row attributes-row">
+                                    {% for attribute in property.extra_attributes %}
+                                        <div class="col-sm-3 col-xs-6">
+                                            <div id="{{attribute.description}}">
+                                                <label class="attribute-title">{{attribute.description}}</label>
+                                                <p class="value">{{attribute.formatted_value}}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="for-sale"><label class="attribute-title">En venta</label><br><p class="value">{% if property.for_sale %}Sí{% else %}No{% endif %}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="sale-price"><label class="attribute-title">Precio de venta</label><br><p class="value">{{property.sale_price|default:'-'|intcomma|currency}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="sale-price-usd"><label class="attribute-title">Precio de venta USD</label><br><p class="value">{{property.sale_price_usd|default:'-'|intcomma|currency:'US$'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="for-rent"><label class="attribute-title">En alquiler</label><br><p class="value">{% if property.for_rent %}Sí{% else %}No{% endif %}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="rent-price"><label class="attribute-title">Precio de alquiler</label><br><p class="value">{{property.rent_price|default:'-'|intcomma|currency}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="rent-price-usd"><label class="attribute-title">Precio de alquiler USD</label><br><p class="value">{{property.rent_price_usd|default:'-'|intcomma|currency:'US$'}}</p></div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="country"><label class="attribute-title">País</label><br><p class="value">{{property.city.state.country.name|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="state"><label class="attribute-title">Provincia/Estado</label><br><p class="value">{{property.city.state.name|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="city"><label class="attribute-title">Ciudad</label><br><p class="value">{{property.city.name|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div id="neighborhood"><label class="attribute-title">Barrio/Zona</label><br><p class="value">{{property.neighborhood.name|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div id="street"><label class="attribute-title">Calle</label><br><p class="value">{{property.street|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div id="number"><label class="attribute-title">Número</label><br><p class="value">{{property.number|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div id="floor"><label class="attribute-title">Piso</label><br><p class="value">{{property.floor|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div id="apartment"><label class="attribute-title">Departamento</label><br><p class="value">{{property.apartment|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <div id="intersecting-street-1"><label class="attribute-title">Entre calle 1</label><br><p class="value">{{property.intersecting_street_1|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <div id="intersecting-street-2"><label class="attribute-title">Entre calle 2</label><br><p class="value">{{property.intersecting_street_2|default:'-'}}</p></div>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-12">
+                                        <div id="anonymous-address"><label class="attribute-title">Dirección ficticia</label><br><p class="value">{{property.anonymous_address|default:'-'}}</p></div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div id="description"><label class="attribute-title">Descripción</label><br><p class="value">{{property.description|default:'-'}}</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="row">
+                            {% if contact_property_rel %}
+                                <div class="col-xs-12">
+                                    <div id="contact-property-relationship-info-box" class="box box-success">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"> Información</h3>
+                                            <div class="box-tools pull-right">
+                                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="row">
+                                                <div class="col-sm-9 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="commentary">Comentarios</label>
+                                                        <textarea type="text" rows="4" class="form-control" id="commentary" name="description" placeholder="Comentarios">{{contact_property_rel.commentary}}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3 col-xs-12">
+                                                    <div id="last-modified-datetime"><label class="attribute-title">Última actualizacion</label><br><p class="value">{{contact_property_rel.last_modified_datetime|utc_to_local_tz:'%d/%m/%Y %H:%M:%S'}}</p></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer panel-heading">
+                <div class="pull-left">
+                    {% if contact %}
+                        <label class="contact-actions">Acciones con {{contact}}&nbsp;</label>
+                    {% endif %}
+                    {% if contact and not contact_property_rel %}
+                        <button class="btn btn-success bind interested" data-dismiss="modal"><i class="fa fa-link"></i> Interesado</button>
+                        {% if not property.owner %}
+                            <button class="btn btn-warning bind owner" data-dismiss="modal"><i class="fa fa-link"></i> Dueño</button>
+                        {% endif %}
+                    {% endif %}
+                    {% if contact_property_rel %}
+                        <button class="btn btn-danger unbind" data-dismiss="modal"><i class="fa fa-unlink"></i> Desvincular</button>
+                    {% endif %}
+                    <button class="property-file-button btn btn-primary" property-id="{{property.id}}"><i class="fa fa-file-excel-o"></i> <i class="fa fa-file-pdf-o"></i> Ficha Excel /  PDF</button>
+                </div>
+                <button class="btn btn-default" data-dismiss="modal">Volver</button>
+            </div>
+        </div>
+    </div>
+    <div id="blueimp-links" style="display: none;">
+        {% for image in property.images %}
+            <a href="{{image.image_url}}" title="{{image.description}}"></a>
+        {% endfor %}
+    </div>
+</div>

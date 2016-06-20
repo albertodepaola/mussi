@@ -1,0 +1,32 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% if history %}
+    {% for entry in history %}
+        <div class="item">
+            <img src="{% static 'collaborative_crm/images/misc/default_history.png' %}" alt="user image" class="chat-warning">
+            <p class="message">
+                <a class="name history" history-entry-id="{{entry.id}}" object-type="{{object_type}}" object-id="{{object.id}}">
+                    <small class="text-muted pull-right"><i class="fa fa-clock-o"></i> {{entry.timestamp|utc_to_local_tz:'%d/%m/%Y %H:%M'}}</small>
+                    {{entry.user_full_name}}
+                </a>
+                <small>
+                    {{entry.html_short_description|safe}}
+                </small>
+            </p>
+        </div>
+    {% endfor %}
+    {% if history_count > history|length|add:starting_entry_number %}
+        <a id="show-more-history" class="show-more pull-right">Mostrar más <i class="fa fa-plus"></i></a>
+    {% endif %}
+{% elif not starting_entry_number %}
+    <div class="item">
+        <img src="{% static 'collaborative_crm/images/misc/default_history.png' %}" alt="user image" class="chat-warning">
+        <p class="message">
+            <a class="name history">
+                <small class="text-muted pull-right"></small>
+            </a>
+            <b>No hay entradas en el historial</b>
+        </p>
+    </div>
+{% endif %}

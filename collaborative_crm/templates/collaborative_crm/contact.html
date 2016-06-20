@@ -1,0 +1,433 @@
+{% extends 'collaborative_crm/base_with_modals.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        {% if contact.id != 0 %}
+            <li class="active"><a href="/crm/">Home</a></li>
+            <li class="active"><a href="/crm/contactos"><i class="fa fa-users"></i> Todos los contactos</a></li>
+            <li class="active"><a href="/crm/contacto/{{contact.id}}"><i class="fa fa-user"></i> {{contact.id}}. {{contact.last_name}}, {{contact.first_name}}</a></li>
+        {% else %}
+            <li class="active"><a href="/crm/">Home</a></li>
+            <li class="active"><a href="/crm/contacto/0"><i class="fa fa-user-plus"></i> Nuevo contacto</a></li>
+        {% endif %}
+    </ol>
+{% endblock %}
+
+{% block contentWithoutDefaultModals %}
+    <div class="row">
+        <div class="col-lg-3 col-sm-4 cols-xs-12">
+            <div class="row">
+                <div class="col-sm-12 hidden-xs">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> </h3>
+                            <div class="box-tools pull-right">
+                                <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="img-thumbnail property">
+                            </img>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12">
+                    {% with do_not_load_actions=can_edit|negate %}
+                        {% include 'collaborative_crm/contact_status.html' %}
+                    {% endwith %}
+                    <br><br>
+                </div>
+                <div class="col-xs-12">
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Agente</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body chat">
+                            <div class="item">
+                                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="offline">
+                                <p class="message">
+                                    {% if contact.user %}
+                                        <a class="name" id="agent" agent-id="{{contact.user.id}}" full-name="{{contact.user.full_name}}">
+                                            {{contact.user.full_name}}
+                                        </a>
+                                        <small>
+                                            {{contact.user.username}}
+                                        </small>
+                                        {% if perms.collaborative_crm.contact_assign_agents or contact.user == user %}
+                                        <br>
+                                        {% if can_edit %}
+                                            <small>
+                                                <a id="unbind-agent" agent-id="{{contact.user.id}}"><i class="fa fa-unlink"></i> Desvincular</a>
+                                            </small>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% else %}
+                                        <a class="name">
+                                        </a>
+                                        <b>Agente no asignado</b>
+                                        <br>
+                                        {% if contact.id != 0 %}
+                                            <small>
+                                                <a id="assign-me-agent" class="agent" user-id="{{user.id}}"><i class="fa fa-user"></i> Asignarme</a>
+                                                {% if perms.collaborative_crm.contact_assign_agents %}
+                                                    <a id="assign-agent" class="agent"><i class="fa fa-search"></i> Asignar</a>
+                                                {% endif %}
+                                            </small>
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% if perms.collaborative_crm.property_assign_agents %}
+                                <div id="agent-search" style="display: none;">
+                                    <hr class="dark-hr">
+                                    <input id="assign-agent-search" class="assign-agent-search-item" placeholder="Buscar agente..." search-item-order="0">&nbsp;&nbsp;
+                                    <i id="cancel-assign-agent" class="fa fa-times"></i>
+                                    <div id="agent-search-results">
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-sm-8 col-xs-12">
+            <form id="contact-info" name="contact-info" contact-id="{{contact.id}}" action="/crm/crear_contacto" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Información básica</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <!--<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>-->
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="first-name">Nombre</label>
+                                    <input type="text" class="form-control edit-on-change mandatory" id="first-name" name="first-name" placeholder="Nombre" value="{% firstof contact.first_name default_name.first '' %}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="last-name">Apellido</label>
+                                    <input type="text" class="form-control edit-on-change" id="last-name" name="last-name" placeholder="Apellido" value="{% firstof contact.last_name default_name.last '' %}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="telephone-number">Teléfono</label>
+                                    <input type="text" class="form-control edit-on-change" id="telephone-number" name="telephone-number" placeholder="Teléfono" value="{{contact.telephone_number|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="email">E-Mail</label>
+                                    <input type="email" class="form-control edit-on-change" id="email" name="email" placeholder="E-Mail" value="{{contact.email|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="country">País</label>
+                                    <select class="form-control edit-on-change-select" id="country" name="country" placeholder="País" value="{{contact.country.id}}" geography-group="contact"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="state">Provincia/Estado</label>
+                                    <select class="form-control edit-on-change-select" id="state" name="state" placeholder="Provincia/Estado" value="{{contact.state.id}}" geography-group="contact"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="city">Ciudad</label>
+                                    <select class="form-control edit-on-change-select" id="city" name="city" placeholder="Ciudad" value="{{contact.city.id}}" geography-group="contact"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="neighborhood">Barrio/Zona</label>
+                                    <select class="form-control edit-on-change-select" id="neighborhood" name="neighborhood" placeholder="Barrio/Zona" value="{{contact.neighborhood.id}}" geography-group="contact"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="address">Dirección</label>
+                                    <input type="text" class="form-control edit-on-change" id="address" name="address" placeholder="Dirección" value="{{contact.address|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="document">Documento (tipo y nro.)</label>
+                                    <input type="text" class="form-control edit-on-change" id="document" name="document" placeholder="Documento" value="{{contact.document|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="works-at">Empresa</label>
+                                    <input type="text" class="form-control edit-on-change" id="works-at" name="works-at" placeholder="Empresa" value="{{contact.works_at|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="alternative-telephone-number">Teléfono Alternativo</label>
+                                    <input type="text" class="form-control edit-on-change" id="alternative-telephone-number" name="alternative-telephone-number" placeholder="Teléfono Alt." value="{{contact.alternative_telephone_number|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="alternative-email">E-Mail Alternativo</label>
+                                    <input type="email" class="form-control edit-on-change" id="alternative-email" name="alternative-email" placeholder="E-Mail Atl." value="{{contact.alternative_email|default:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if contact.id != 0 %}
+                        <div class="box-footer">
+                            <div class="row">
+                                <!--<div class="col-sm-9 col-xs-12">
+                                    <button type="button" class="btn btn-success">
+                                        <i class="fa fa-file-excel-o"></i> Ficha excel
+                                    </button>&nbsp;
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-file-pdf-o"></i> Ficha PDF
+                                    </button>&nbsp;
+                                    <button type="button" class="btn btn-default">
+                                        <i class="fa fa-link"></i> Vincular Contacto
+                                    </button>
+                                </div>
+                                <div class="col-sm-3 col-xs-12">-->
+                                {% if can_edit %}
+                                    <div class="col-xs-12">
+                                        <button type="button" class="btn btn-danger pull-right" id="remove-contact">
+                                            <i class="fa fa-trash"></i> Eliminar Contacto
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-sm-6 col-xs-12">
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Propiedades</h3>
+                    <div class="box-tools pull-right">
+                        <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                        {% if contact.id != 0 %}
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-home"></i>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>&nbsp;Crear propiedad</li>
+                                    <li class="divider"></li>
+                                    <li><a href="/crm/propiedad/0/dueno/{{contact.id}}" target="_blank" id="create-property-owner">Dueño</a></li>
+                                    <li><a href="/crm/propiedad/0/interesado/{{contact.id}}" target="_blank" id="create-property-interested">Interesado</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body properties chat">
+                    {% if contact_properties %}
+                        {% for related_property in contact_properties %}
+                            <div class="item">
+                                <img src="{% if related_property.parent_property.cover_image %}{{related_property.parent_property.cover_image.image_url}}{% else %}{% static 'collaborative_crm/images/misc/default_property.png' %}{% endif %}" alt="user image" class="online">
+                                <p class="message">
+                                    <a class="name property" property-id="{{related_property.parent_property.id}}">
+                                        <small class="text-muted pull-right"><i class="fa fa-home"></i> {{related_property.relationship_type}}</small>
+                                        {{related_property.parent_property}}
+                                    </a>
+                                    <small>
+                                        {{related_property.commentary|default:'Sin comentarios'|truncatechars:100}}
+                                    </small>
+                                </p>
+                            </div>
+                        {% endfor %}
+                        {% if contact_properties_count > contact_properties|length %}
+                            <a id="show-more-properties" class="show-more pull-right">Mostrar más <i class="fa fa-plus"></i></a>
+                        {% endif %}
+                    {% elif property_relationship_type %}
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/misc/default_property.png' %}" alt="user image" class="online">
+                            <p class="message">
+                                <a id="{% if property_relationship_type == 'owner' %}property-owner{% else %}property-interested{% endif %}" class="name property" property-id="{{property.id}}">
+                                    <small class="text-muted pull-right"><i class="fa fa-home"></i> {% if property_relationship_type == 'owner' %}Dueño {% else %}Interesado {% endif %}</small>
+                                    {{property}}
+                                </a>
+                                <small>
+                                    Sin comentarios
+                                </small>
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/misc/default_property.png' %}" alt="user image" class="online">
+                            <p class="message">
+                                <a class="name property">
+                                    <small class="text-muted pull-right"></small>
+                                </a>
+                                <b>Sin propiedad vinculadas</b>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 col-xs-12">
+            <div class="box box-danger">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Búsquedas</h3>
+                    <div class="box-tools pull-right">
+                        <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                        {% if contact.id != 0 and can_edit %}
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-search-plus"></i>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a id="new-search">Nueva búsqueda</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body searches chat">
+                    {% if contact.searches|length > 0 %}
+                        {% for search in contact.searches %}
+                            <div class="item">
+                                <img src="{% static 'collaborative_crm/images/misc/default_search.png' %}" alt="user image" class="offline">
+                                <p class="message">
+                                    <a class="name search" search-id="{{search.id}}">
+                                        <small class="text-muted pull-right"><i class="fa fa-calendar"></i> {{search.date|utc_to_local_tz:'%d/%m/%Y'}}</small>
+                                        {{search.user.full_name}}
+                                    </a>
+                                    <small>
+                                        Búsqueda <b>{{search.id}}</b>: {{search.commentary|default:'Sin comentarios'|truncatechars:100}}
+                                    </small>
+                                </p>
+                            </div>
+                        {% endfor %}
+                        {% if contact.searches_count > contact.searches|length %}
+                            <a id="show-more-searches" class="show-more pull-right">Mostrar más <i class="fa fa-plus"></i></a>
+                        {% endif %}
+                    {% else %}
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/misc/default_search.png' %}" alt="user image" class="offline">
+                            <p class="message">
+                                <a class="name search">
+                                    <small class="text-muted pull-right"></small>
+                                </a>
+                                <b>Sin búsquedas</b>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-12">
+            <div class="box box-warning">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Historial</h3>
+                    <div class="box-tools pull-right">
+                        <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-filter"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a id="show-filter-history"><i class="fa fa-filter"></i> Filtrar</a></li>
+                                <li><a id="remove-history-filters"><i class="fa fa-times"></i> Quitar filtros</a></li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body history chat">
+                    {% include 'collaborative_crm/history_data.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade created-contact-modal" id="created-contact-modal" aria-labelledby="myModalLabel" style="z-index: 1051;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Contacto creado</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    Se creó un nuevo contacto exitosamente
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade remove-contact-modal" id="remove-contact-modal" aria-labelledby="myModalLabel" style="z-index: 1051;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar borrado</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea eliminar el contacto <b>{{contact}}</b>?
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-remove" data-dismiss="modal">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade remove-search-modal" id="remove-search-modal" aria-labelledby="myModalLabel" style="z-index: 1051;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar borrado de búsqueda</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea eliminar la búsqueda?
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-remove-search" data-dismiss="modal">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block importsWithoutDefaultModals %}
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/contact.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/contact.js' %}"></script>
+{% endblock %}

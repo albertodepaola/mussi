@@ -1,0 +1,28 @@
+Se adjunta la ficha de la propiedad {{property.anonymous_address|default:property}}
+
+LinkedProp
+Ficha de propiedad
+{{request_user.full_name_reversed}} de {{request_user.company}} ha compartido con usted la ficha de la propiedad {{property.anonymous_address|default:property}}
+
+{{recipient.full_name_reversed}}: adjunta en este email se encuentra la ficha con los datos básicos de la propiedad {{property.anonymous_address|default:property}} de {{request_user.company}}
+{{request_user.full_name_reversed}} compartió la ficha{% if message %} con el siguiente mensaje:
+{{meesage}}{% endif %}
+{% if email or telephone_number %}
+Contacto:
+{% if email %}Email: {{email}}{% endif %}
+{% if telephone_number %}Tél: {{telephone_number}}{% endif %}
+{% endif %}
+
+{% if recipient_type == 'user' %}
+Ver propiedad en LinkedProp: {{link_to_property}}
+{% endif %}
+
+¿Recibido por error?
+Si usted no es {{recipient.full_name_reversed}}, por favor contáctenos para aclarar el error y elimine este correo. Gracias
+
+Contáctenos
+Email: {{linked_prop_email}}
+Tél: {{linked_prop_telephone}}
+
+
+LinkedProp - Copyright © 2016 Todos los derechos reservados

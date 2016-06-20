@@ -1,0 +1,105 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{web_title}}</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.6 -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/bootstrap/css/bootstrap.min.css' %}">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/font-awesome/css/font-awesome.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/ionicons/css/ionicons.min.css' %}">
+  <!--Common CSS styles for all pages-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/base.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/AdminLTE/css/AdminLTE.min.css' %}">
+  <!-- AdminLTE Skin-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/AdminLTE/css/skins/_all-skins.min.css' %}">
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header class="main-header">
+    <!-- Logo -->
+    <a href="/crm/" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini">L<b>Pr</b></span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg">Linked<b>Prop</b></span>
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+      <div class="row">
+		<!--main content-->
+        <div id="blank" class="col-xs-1 col-sm-2 col-md-3 col-lg-4">
+        </div>
+        <div id="main-content" class="col-xs-10 col-sm-8 col-md-6 col-lg-4">
+          <br><br><br>
+          <form class="form-signin">
+            <label>Iniciar Sesión</label>
+            <br><br>
+            <!--<label for="inputText" class="sr-only">Usuario</label>-->
+            <input name="username" type="text" id="inputUserName" class="form-control" placeholder="Usuario" required="" autofocus="">
+            <br>
+            <!--<label for="inputPassword" class="sr-only">Usuario</label>-->
+            <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+            <br><br>
+            <button class="btn btn-lg btn-primary btn-block" type="button">Ingresar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      <b>Versión</b> 0.1
+    </div>
+    <strong>Copyright &copy; 2016.</strong> Todos los derechos reservados.
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 2.2.0 -->
+<script src="{% static 'collaborative_crm/jQuery/js/jQuery-2.2.0.min.js' %}"></script>
+<!--jQuery Cookie 1.4.1-->
+<script src="{% static 'collaborative_crm/jQuery/js/jquery.cookie.js' %}"></script>
+<!--jQuery Throttle 1.1-->
+<script src="{% static 'collaborative_crm/jQuery/js/jQuery-throttle.min.js' %}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'collaborative_crm/jQuery/js/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+</script>
+<!-- Bootstrap 3.3.6 -->
+<script src="{% static 'collaborative_crm/bootstrap/js/bootstrap.min.js' %}"></script>
+<!-- Slimscroll -->
+<script src="{% static 'collaborative_crm/slimScroll/js/jquery.slimscroll.min.js' %}"></script>
+<!-- FastClick -->
+<script src="{% static 'collaborative_crm/fastclick/js/fastclick.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'collaborative_crm/adminLTE/js/app.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/login.css' %}">
+<script src="{% static 'collaborative_crm/templates/js/login.js' %}"></script>
+{% block imports %}{% endblock %}
+</body>
+</html>

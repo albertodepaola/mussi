@@ -1,0 +1,104 @@
+{% extends 'collaborative_crm/base_with_modals.html' %}
+{% load staticfiles %}
+
+{% block breadcrumb  %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/"><i class="fa fa-newspaper-o"></i> Noticias</a></li>
+    </ol>
+{% endblock %}
+
+{% block contentWithoutDefaultModals %}
+    <div class="row">
+        <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12 pull-right news-filters-col">
+            <label>Filtros</label>&nbsp;&nbsp;
+            <b><a href="/crm/noticias" class="small">Restablecer</a></b>
+            <br>
+            <form id="news-filters">
+                <div class="row">
+                    <div class="col-sm-12 col-xs-4">
+                        <div class="form-group">
+                            <b>Tipo</b>
+                            <label class="radio"><input class="filter" type="radio" id="entities" name="entities" value="propiedades-contactos" checked>Todo</label>
+                            <label class="radio"><input class="filter" type="radio" id="entities" name="entities" value="propiedades">Propiedades</label>
+                            <label class="radio"><input class="filter" type="radio" id="entities" name="entities" value="contactos">Contactos</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-4 radio-col">
+                        <div class="form-group">
+                            <b>Actualizaciones por</b>
+                            <label class="radio"><input class="filter" type="radio" id="users" name="users" value="all" checked>Todos</label>
+                            <label class="radio"><input class="filter" type="radio" id="users" name="users" value="me">Yo</label>
+                            <label class="radio"><input class="filter" type="radio" id="users" name="users" value="selected-users">Seleccionar</label>
+                        </div>
+                        <select class="filter filter-select2" id="selected-users" name="selected-users" multiple>
+                            {% for usr in users %}
+                                <option value="{{usr.id}}">{{usr.full_name}} ({{usr}})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-12 col-xs-4 radio-col">
+                        <div class="form-group">
+                            <b>Usuarios a cargo</b>
+                            <label class="radio"><input class="filter" type="radio" id="users-in-charge" name="users-in-charge" value="all" checked>Todos</label>
+                            <label class="radio"><input class="filter" type="radio" id="users-in-charge" name="users-in-charge" value="me">Yo</label>
+                            <label class="radio"><input class="filter" type="radio" id="users-in-charge" name="users-in-charge" value="selected-users">Seleccionar</label>
+                        </div>
+                        <select class="filter filter-select2" id="selected-users-in-charge" name="selected-users-in-charge" multiple>
+                            {% for usr in users %}
+                                <option value="{{usr.id}}">{{usr.full_name}} ({{usr}})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-12 col-xs-2">
+                                    <b>Tiempo</b><br>
+                                </div>
+                                <div class="col-sm-12 col-xs-5">
+                                    <b>Desde</b><br>
+                                    <select class="filter" id="week-from" name="week-from">
+                                        <option value="0" selected>Ésta semana</option>
+                                        <option value="1">La semana pasada</option>
+                                        <option value="2">Hace 2 semanas</option>
+                                        <option value="3">Hace 3 semanas</option>
+                                        <option value="4">Hace 4 semanas</option>
+                                        <option value="5">Hace 5 semanas</option>
+                                        <option value="6">Hace 6 semanas</option>
+                                        <option value="7">Hace 7 semanas</option>
+                                        <option value="8">Hace 8 semanas</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-12 col-xs-5">
+                                    <b>Hasta</b><br>
+                                    <select class="filter" id="week-to" name="week-to">
+                                        <option value="1">Ésta semana</option>
+                                        <option value="2" selected>La semana pasada</option>
+                                        <option value="3">Hace 2 semanas</option>
+                                        <option value="4">Hace 3 semanas</option>
+                                        <option value="5">Hace 4 semanas</option>
+                                        <option value="6">Hace 5 semanas</option>
+                                        <option value="7">Hace 6 semanas</option>
+                                        <option value="8">Hace 7 semanas</option>
+                                        <option value="9">Hace 8 semanas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-10 col-md-9 col-sm-8 col-xs-12 news-col">
+            <div id="news">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block importsWithoutDefaultModals %}
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/news.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/news.js' %}"></script>
+{% endblock %}

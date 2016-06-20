@@ -1,0 +1,312 @@
+{% extends 'collaborative_crm/base.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/mi_empresa/configuracion"><i class="fa fa-university"></i> Mi Empresa</a></li>
+        <li class="active"><a href="/crm/mi_empresa/configuracion"><i class="fa fa-gears"></i> Configuración</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title"> Logo</h3>
+                </div>
+                <div class="box-body">
+                  <div class="company-logo">
+                    {% if user.company.logo_image %}
+                      <img class="company-logo" src="{{company.logo_url}}">
+                      <br><br>
+                    {% endif %}
+                  <form id="uploadCompanyLogo" class="company-logo dropzone" action="/crm/empresa/{{company.id}}/actualizar_logo" method="POST">
+                    {% csrf_token %}
+                    <div class="dz-message" data-dz-message>
+                        <span>Arrastrar imagen o hacer click</span><br>
+                        <span class="small">Resolución sugerida: 200x50</span>
+                    </div>
+                  </form>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-md-8 col-sm-6 col-xs-12">
+            <form id="company-info" name="company-info" action="/crm/empresa/{{company.id}}/actualizar_datos" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Configuración básica</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="name">Nombre</label>
+                                    <input type="text" class="form-control" id="name" name="name"  placeholder="Nombre" value="{{company.name}}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-success" id="save-company">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if perms.collaborative_crm.edit_workflows %}
+            <div class="col-xs-12">
+                <form id="contact-states-workflow" name="contact-states-workflow" action="/crm/mi_empresa/actualizar_workflow" method="POST">
+                    {% csrf_token %}
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Configuración de workflow de contactos</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="alert alert-warning contact-workflow-alert"><b><i class="fa fa-warning"></i> Atención</b><br>Modificar el workflow de contactos activo puede resultar en comportamiento indeseado si existen dudas sobre como funciona el mecanismo. Por favor, consulte con LinkedProp si no está seguro de como ejecutar el cambio.</div>
+                            <div class="form-group">
+                                <label for="workflow">Seleccionar workflow</label>
+                                <select type="text" class="form-control" id="workflow" name="workflow">
+                                    {% for workflow in company.workflows %}
+                                        <option value="{{workflow.id}}" is-default="{{workflow.is_default|yesno:'yes,no'}}"{% if workflow.is_active %} selected{% endif %}>{{workflow.name}}</option>
+                                    {% endfor %}
+                                    <option value="0" is-default="no">Nuevo workflow</option>\
+                                </select>
+                                <hr class="dark-hr">
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="workflow-active" name="workflow-active" type="checkbox">
+                                        <b>Workflow activo</b>
+                                    </label>
+                                </div>
+                                <div class="form-group" style="display: none;">
+                                    <label for="workflow-name">Nombre</label>
+                                    <input type="text" class="form-control" id="workflow-name" name="workflow-name" placeholder="Nombre del workflow">
+                                </div>
+                                <div class="form-group">
+                                    <label for="workflow-description">Descripción</label>
+                                    <textarea type="text" rows="6" class="form-control" id="workflow-description" name="workflow-description" placeholder="Descripción"></textarea>
+                                </div>
+                                <a id="remove-workflow"> <i class="fa fa-trash-o"></i> Eliminar workflow </a>
+                            </div>
+                            <div id="canvas-container">
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <button type="button" class="btn btn-success" id="save-workflow">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        <div class="modal fade error-saving-workflow-modal" id="error-saving-workflow-modal" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"> Error al <text class="action"></text> el Workflow</h4>
+                    </div>
+                    <div class="modal-body panel-heading body-content">
+                        Hubo un error al intentar <text class="action"></text> este workflow:<br><br>
+                        <p id="error-saving-workflow-message"></p>
+                    </div>
+                    <div class="modal-footer panel-heading">
+                        <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade confirm-delete-workflow-modal" id="confirm-delete-workflow-modal" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content panel-danger">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"> Confirmar la eliminación del Workflow</h4>
+                    </div>
+                    <div class="modal-body panel-heading body-content">
+                        ¿Confirma la eliminación de este workflow?
+                    </div>
+                    <div class="modal-footer panel-heading">
+                        <button id="remove-workflow" class="btn btn-danger" data-dismiss="modal">Confirmar</button>
+                        <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user.is_admin %}
+            <div class="col-xs-12">
+                <form id="permissions" name="permissions" action="/crm/mi_empresa/actualizar_permisos" method="POST">
+                    {% csrf_token %}
+                    <div class="box box-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Configuración de permisos</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label>Los agentes pueden editar detalles de propiedades/contactos de otros agentes (y ver el dueño asignado a las propiedades)</label><br>
+                                    {% for privacy_config in privacy_configs %}
+                                        <label class="radio"><input type="radio" id="permissions-config" name="permissions-config" value="{{privacy_config.id}}"{% if company.privacy_config == privacy_config %} checked{% endif %}>{{privacy_config}}</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label>Permisos de los super agentes</label><br>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="edit-config" name="edit-config" type="checkbox"{% if company.super_agents_can_edit_config %} checked{% endif %}>
+                                            Pueden editar la configuración de la empresa
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="config-notifications" name="config-notifications" type="checkbox"{% if company.super_agents_can_config_notifications %} checked{% endif %}{% if not company.super_agents_can_edit_config %} disabled{% endif %}>
+                                            Pueden editar la configuración de notificaciones de los grupos&nbsp;&nbsp;
+                                            <span class="label label-warning"><i class="fa fa-warning"></i> Requiere que se pueda editar la configuración de la empresa</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="edit-branches" name="edit-branches" type="checkbox"{% if company.super_agents_can_edit_branches %} checked{% endif %}>
+                                            Pueden editar las sucursales de la empresa
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="edit-agents" name="edit-agents" type="checkbox"{% if company.super_agents_can_edit_agents %} checked{% endif %}>
+                                            Pueden crear/editar/eliminar agentes en la empresa
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="property-assign-agents" name="property-assign-agents" type="checkbox"{% if company.super_agents_can_assign_user_to_properties %} checked{% endif %}>
+                                            Pueden asignar/desasignar propiedades a sus agentes a cargo
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input id="contact-assign-agents" name="contact-assign-agents" type="checkbox"{% if company.super_agents_can_assign_user_to_contacts %} checked{% endif %}>
+                                            Pueden asignar/desasignar contactos a sus agentes a cargo
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-success" id="save-permissions">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if perms.collaborative_crm.config_notifications %}
+            <div class="col-xs-12">
+                <form id="notifications" name="notifications" action="/crm/mi_empresa/grupo/0/actualizar_configuracion_notificaciones" method="POST">
+                    {% csrf_token %}
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Configuración de notificaciones</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="alert alert-warning group-config-alert" style="display: none;"><b><i class="fa fa-warning"></i> Atención</b><br>Modificar la configuración de notificaciones de un tipo de usuario puede sobreescribir la configuración de los usuarios con ese tipo de usuario</div>
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <h4 for="user-type">Tipo de usuario</h4>
+                                        <select type="text" class="form-control" id="user-type" name="user-type"  placeholder="Tipo de usuario">
+                                            <option value="0" is-admin="no" selected>-</option>
+                                            {% for group in user_groups %}
+                                                <option value="{{group.id}}" is-admin="{% if group.is_admin %}yes{% else %}no{% endif %}">{{group.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12" style="padding-top: 38px;">
+                                    <button type="submit" class="btn btn-success" id="save-config" style="display: none;">
+                                        <i class="fa fa-save"></i> Guardar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row" id="config" style="display: none;">
+                                {% for notification_type in notification_types %}
+                                    <div class="col-xs-12">
+                                        <label>{{notification_type.description}}</label>
+                                        <div class="row" notification-type="{{notification_type.id}}">
+                                            <div class="col-sm-3 col-xs-6">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input id="{{notification_type.id}}-notify" name="{{notification_type.id}}-notify" class="notify" type="checkbox">
+                                                        Notificar en el sitio
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-xs-6">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input id="{{notification_type.id}}-email" name="{{notification_type.id}}-email" class="email" type="checkbox">
+                                                        Enviar email
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label class="radio-inline"><input type="radio" id="{{notification_type.id}}-edit-view" name="{{notification_type.id}}-edit-view" class="edit-view" value="can_edit">Puede editar</label>
+                                                    <label class="radio-inline"><input type="radio" id="{{notification_type.id}}-edit-view" name="{{notification_type.id}}-edit-view" class="edit-view" value="can_view">Puede ver</label>
+                                                    <label class="radio-inline"><input type="radio" id="{{notification_type.id}}-edit-view" name="{{notification_type.id}}-edit-view" class="edit-view" value="none">Nada</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr class="dark-hr">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-success" id="save-config" style="display: none;">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--Workflow Canvas-->
+    <script src="{% static 'collaborative_crm/workflowcanvas/js/CanvasInput.min.js'%}"></script>
+    <script src="{% static 'collaborative_crm/workflowcanvas/js/workflowcanvas.js' %}"></script>
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/my_company_config.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/my_company_config.js' %}"></script>
+{% endblock %}

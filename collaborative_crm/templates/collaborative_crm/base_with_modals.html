@@ -1,0 +1,253 @@
+{% extends 'collaborative_crm/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    {% block contentWithoutDefaultModals %}{% endblock %}
+    <div class="modal fade search-modal" id="search-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog search" role="document">
+            <div class="modal-content">
+                <div class="modal-header panel-heading" id="modal-title-panel">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="search-modal-title"></h4>
+                </div>
+                <div class="modal-body panel-heading">
+                    <div class="row body-content">
+                        <div class="col-xs-12">
+                            <div class="box box-warning" id="search-commentary-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"> Comentarios</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label for="commentary">Comentarios de la búsqueda</label>
+                                                <textarea type="text" rows="5" class="form-control" id="commentary" name="commentary" placeholder="Comentarios"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="box box-primary" id="search-parameters-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"> Parámetros</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <form id="search-parameters">
+                                    <div class="box-body">
+                                        <div class="search-section">
+                                            <label class="search-section-title"><a class="search-section-show-hide">Características&nbsp;&nbsp;<i class="fa fa-minus search-section-show-hide"></i></a></label>
+                                            <div class="row section-row">
+                                                <div class="col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="type">Tipo</label>
+                                                        <select class="form-control" id="type" name="type" placeholder="Tipo" multiple>
+                                                            {% for type in property_types %}
+                                                                <option value="{{type.id}}">{{type.description}}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="status">Estado</label><br>
+                                                        <label class="radio-inline"><input type="radio" id="status" name="status" value="all">Todos</label>
+                                                        <label class="radio-inline"><input type="radio" id="status" name="status" value="available" checked>Solo disponibles</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row section-row">
+                                                {% for attribute in property_common_attributes %}
+                                                    <div class="col-md-4 col-sm-6 col-xs-12">
+                                                        <div class="form-group common-attribute-form-group">
+                                                            <label for="{{attribute.html_name}}">{{attribute.description}}</label>
+                                                            {% if attribute.format == 'Número' %}
+                                                                <div class="row">
+                                                                    <div class="col-sm-6 col-xs-12">
+                                                                        <b>Desde</b><input type="text" class="form-control touch-spin-small" id="{{attribute.html_name}}-from" name="{{attribute.html_name}}-from" placeholder="Desde">
+                                                                    </div>
+                                                                    <div class="col-sm-6 col-xs-12">
+                                                                        <b>Hasta</b><input type="text" class="form-control touch-spin-small" id="{{attribute.html_name}}-to" name="{{attribute.html_name}}-to" placeholder="Hasta">
+                                                                    </div>
+                                                                </div>
+                                                            {% else %}
+                                                                <br><br>
+                                                                <input type="text" class="form-control" id="{{attribute.html_name}}" name="{{attribute.html_name}}" placeholder="{{attribute.description}}"/>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="search-section">
+                                            <label class="search-section-title"><a class="search-section-show-hide">Venta&nbsp;&nbsp;<i class="fa fa-minus"></i></a></label>
+                                            <div class="row section-row">
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="for-sale">En venta</label><br>
+                                                        <label class="radio-inline"><input type="radio" id="for-sale" name="for-sale" value="all" checked>Indistinto</label>
+                                                        <label class="radio-inline"><input type="radio" id="for-sale" name="for-sale" value="yes">Sí</label>
+                                                        <label class="radio-inline"><input type="radio" id="for-sale" name="for-sale" value="no">No</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="sale-price">Precio de Venta</label>
+                                                        <br><b>Desde</b><input type="text" class="form-control touch-spin" id="sale-price-from" name="sale-price-from" placeholder="Desde">
+                                                        <b>Hasta</b><input type="text" class="form-control touch-spin" id="sale-price-to" name="sale-price-to" placeholder="Hasta">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="sale-price-usd">Precio de Venta USD</label>
+                                                        <br><b>Desde</b><input type="text" class="form-control touch-spin" id="sale-price-usd-from" name="sale-price-usd-from" placeholder="Desde">
+                                                        <b>Hasta</b><input type="text" class="form-control touch-spin" id="sale-price-usd-to" name="sale-price-usd-to" placeholder="Hasta">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="search-section">
+                                            <label class="search-section-title"><a class="search-section-show-hide">Alquiler&nbsp;&nbsp;<i class="fa fa-minus search-section-show-hide"></i></a></label>
+                                            <div class="row section-row">
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="for-rent">En alquiler</label><br>
+                                                        <label class="radio-inline"><input type="radio" id="for-rent" name="for-rent" value="all" checked>Indistinto</label>
+                                                        <label class="radio-inline"><input type="radio" id="for-rent" name="for-rent" value="yes">Sí</label>
+                                                        <label class="radio-inline"><input type="radio" id="for-rent" name="for-rent" value="no">No</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="rent-price">Precio de Alquiler</label>
+                                                        <br><b>Desde</b><input type="text" class="form-control touch-spin" id="rent-price-from" name="rent-price-from" placeholder="Desde">
+                                                        <b>Hasta</b><input type="text" class="form-control touch-spin" id="rent-price-to" name="rent-price-to" placeholder="Hasta">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="rent-price-usd">Precio de Alquiler USD</label>
+                                                        <br><b>Desde</b><input type="text" class="form-control touch-spin" id="rent-price-usd-from" name="rent-price-usd-from" placeholder="Desde">
+                                                        <b>Hasta</b><input type="text" class="form-control touch-spin" id="rent-price-usd-to" name="rent-price-usd-to" placeholder="Hasta">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="search-section">
+                                        <label class="search-section-title"><a class="search-section-show-hide">Locación&nbsp;&nbsp;<i class="fa fa-minus search-section-show-hide"></i></a></label>
+                                            <div class="row section-row">
+                                                <div class="col-lg-3 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="country">País</label>
+                                                        <select class="form-control" id="country" name="country" placeholder="País" geography-group="contact-search">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="state">Provincia/Estado</label>
+                                                        <select class="form-control" id="state" name="state" placeholder="Provincia/Estado" geography-group="contact-search">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="city">Ciudad</label>
+                                                        <select class="form-control" id="city" name="city" placeholder="Ciudad" geography-group="contact-search">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="neighborhood">Barrio/Zona</label>
+                                                        <select class="form-control" id="neighborhood" name="neighborhood" placeholder="Barrio/Zona" geography-group="contact-search" multiple>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="street">Calle</label>
+                                                        <input type="text" class="form-control" id="street" name="street" placeholder="Calle">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-2 col-xs-4">
+                                                    <div class="form-group">
+                                                        <label for="number">Número</label>
+                                                        <input type="text" class="form-control" id="number" name="number" placeholder="Número">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-2 col-xs-4">
+                                                    <div class="form-group">
+                                                        <label for="floor">Piso</label>
+                                                        <input type="text" class="form-control" id="floor" name="floor" placeholder="Piso">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-3 col-xs-4">
+                                                    <div class="form-group">
+                                                        <label for="apartment">Departamento</label>
+                                                        <input type="text" class="form-control" id="apartment" name="apartment" placeholder="Departamento">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label for="intersecting-streets">Entre calles</label>
+                                                        <input type="text" class="form-control" id="intersecting-streets" name="intersecting-streets" placeholder="Entre calles">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6">
+                                                    <div class="form-group">
+                                                        <label for="anonymous-address">Dirección ficticia</label>
+                                                        <input type="text" class="form-control" id="anonymous-address" name="anonymous-address" placeholder="Dirección ficticia">
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="description">Descripción</label>
+                                                        <input type="text" class="form-control" id="description" name="description" placeholder="Descripción">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="box box-success" id="search-results-box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"> Resultados</h3>&nbsp;<b><a id="change-search-parameters"><i class="fa fa-search"></i> Cambiar parámetros de búsqueda</a>&nbsp;&nbsp;<a id="change-search-commentary"><i class="fa fa-edit"></i> Anotar comentarios</a></b>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-primary" id="execute-search"><i class="fa fa-search"></i> Buscar</button>
+                    <button class="btn btn-danger" id="remove-search"><i class="fa fa-trash"></i> Eliminar</button>
+                    <button id="back" class="btn btn-default" data-dismiss="modal">Volver</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--Template Specific-->
+    <script src="{% static 'collaborative_crm/templates/js/base_with_modals.js' %}"></script>
+    {% block importsWithoutDefaultModals %}{% endblock %}
+{% endblock %}

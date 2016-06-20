@@ -1,0 +1,742 @@
+{% extends 'collaborative_crm/base_with_modals.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        {% if property.id != 0 %}
+            <li class="active"><a href="/crm/">Home</a></li>
+            <li class="active"><a href="/crm/propiedades"><i class="fa fa-circle-o"></i> Todas las propiedades</a></li>
+            <li class="active"><a href="/crm/propiedad/{{property.id}}"><i class="fa fa-home"></i> {{property.id}}. {{property}}</a></li>
+        {% else %}
+            <li class="active"><a href="/crm/">Home</a></li>
+            <li class="active"><a href="/crm/propiedad/0"><i class="fa fa-plus"></i> Nueva propiedad</a></li>
+        {% endif %}
+    </ol>
+{% endblock %}
+
+{% block contentWithoutDefaultModals %}
+    <div class="row">
+
+        <div class="col-lg-3 col-sm-4 col-xs-12">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Imágenes{% if property.id != 0 %} <a id="view-images" class="small">{% if can_edit %}<i class="fa fa-edit"></i>{% else %}<i class="fa fa-search"></i>{% endif %}</a>{% endif %}</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <img id="property-cover-image" src="{% if property.cover_image %}{{property.cover_image.image_url}}{% else %}{% static 'collaborative_crm/images/misc/default_property.png' %}{% endif %}" class="img-thumbnail property">
+                            </img>
+                        </div>
+                    </div>
+                </div>
+                {% if can_edit %}
+                    <div class="col-xs-12">
+                        <div class="box box-warning">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"> Dueño</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                </div>
+                            </div>
+                            <div class="box-body chat">
+                                <div class="item">
+                                    <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="chat-warning">
+                                    <p class="message">
+                                        {% if property.owner %}
+                                            <a class="name" id="owner" contact-id="{{property.owner.contact.id}}">
+                                                {{property.owner.contact}}
+                                            </a>
+                                            {% if property.owner.contact.telephone_number or property.owner.contact.email %}
+                                                <small>
+                                                    {{property.owner.contact.telephone_number}}{% if property.owner.contact.telephone_number and property.owner.contact.email %}<br>{% endif %}
+                                                    {{property.owner.contact.email}}
+                                                </small><br>
+                                            {% endif %}
+                                            <small>
+                                                <a id="unbind-owner" contact-id="{{property.owner.contact.id}}"><i class="fa fa-unlink"></i> Desvincular</a>
+                                            </small>
+                                        {% elif contact_relationship_type == 'owner' %}
+                                            <a class="name" id="new-property-owner" contact-id="{{contact.id}}" style="cursor: default; color: #000000;">
+                                                {{contact}}
+                                            </a>
+                                            {% if contact.telephone_number or contact.email %}
+                                                <small>
+                                                    {{contact.telephone_number}}{% if contact.telephone_number and contact.email %}<br>{% endif %}
+                                                    {{contact.email}}
+                                                </small>
+                                            {% endif %}
+                                        {% else %}
+                                            <a class="name">
+                                            </a>
+                                            <b>Dueño no asignado</b>
+                                            <br>
+                                            {% if property.id != 0 %}
+                                                <small>
+                                                    <a href="/crm/nuevo_contacto/dueno/{{property.id}}" target="_blank" id="create-owner" class="owner"><i class="fa fa-user-plus"></i> Crear</a>&nbsp;&nbsp;
+                                                    <a id="assign-owner" class="owner"><i class="fa fa-search"></i> Asignar</a>
+                                                </small>
+                                            {% endif %}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div id="owner-search" style="display: none;">
+                                    <hr class="dark-hr">
+                                    <input id="assign-owner-search" class="assign-owner-search-item" placeholder="Buscar dueño..." search-item-order="0">&nbsp;&nbsp;
+                                    <i id="cancel-assign-owner" class="fa fa-times"></i>
+                                    <div id="owner-search-results">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="col-xs-12">
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Agente</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body chat">
+                            <div class="item">
+                                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="offline">
+                                <p class="message">
+                                    {% if property.user %}
+                                        <a class="name" id="agent" agent-id="{{property.user.id}}" full-name="{{property.user.full_name}}">
+                                            {{property.user.full_name}}
+                                        </a>
+                                        <small>
+                                            {{property.user.username}}
+                                        </small>
+                                        {% if perms.collaborative_crm.property_assign_agents or property.user == user %}
+                                        <br>
+                                        {% if can_edit %}
+                                            <small>
+                                                <a id="unbind-agent" agent-id="{{property.user.id}}"><i class="fa fa-unlink"></i> Desvincular</a>
+                                            </small>
+                                        {% endif %}
+                                        {% endif %}
+                                    {% else %}
+                                        <a class="name">
+                                        </a>
+                                        <b>Agente no asignado</b>
+                                        <br>
+                                        {% if property.id != 0 %}
+                                            <small>
+                                                <a id="assign-me-agent" class="agent" user-id="{{user.id}}"><i class="fa fa-user"></i> Asignarme</a>
+                                                {% if perms.collaborative_crm.property_assign_agents %}
+                                                    <a id="assign-agent" class="agent"><i class="fa fa-search"></i> Asignar</a>
+                                                {% endif %}
+                                            </small>
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% if perms.collaborative_crm.property_assign_agents %}
+                                <div id="agent-search" style="display: none;">
+                                    <hr class="dark-hr">
+                                    <input id="assign-agent-search" class="assign-agent-search-item" placeholder="Buscar agente..." search-item-order="0">&nbsp;&nbsp;
+                                    <i id="cancel-assign-agent" class="fa fa-times"></i>
+                                    <div id="agent-search-results">
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-sm-8 col-xs-12">
+            <form id="property-basic-info" name="property-basic-info" property-id="{{property.id}}" action="/crm/crear_propiedad" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Información básica</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="type">Tipo</label>
+                                    <select class="form-control edit-on-change-select" id="type" name="type" placeholder="Tipo" value="{{property.type.id}}"{{can_edit|yesno:', disabled'}}>
+                                        {% for type in property_types %}
+                                            <option value="{{type.id}}"{% if type.id == property.type.id %} selected{% endif %}>{{type.description}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="status">Estado</label>
+                                    <select {% if property.pending_appraisal or property.unavailable %}disabled {% endif %}class="form-control edit-on-change-select" id="status" name="status" placeholder="Estado" value="{{property.status_id_value}}"{{can_edit|yesno:', disabled'}}>
+                                        {% for status in property_statuses %}
+                                            <option value="{{status.id}}"{% if status.id == property.status_id_value %} selected{% endif %}>{{status.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="country">País</label>
+                                    <select class="form-control" id="country" name="country" placeholder="País" value="{{property.country_id}}" geography-group="property"{{can_edit|yesno:', disabled'}}>
+                                        {% for country in countries %}
+                                            <option value="{{country.id}}"{% if country.id == property.country_id %} selected{% endif %}>{{country.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="state">Provincia/Estado</label>
+                                    <select class="form-control" id="state" name="state" placeholder="Provincia/Estado" value="{{property.state_id}}" geography-group="property"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="city">Ciudad</label>
+                                    <select class="form-control edit-on-change-select mandatory" id="city" name="city" placeholder="Ciudad" value="{{property.city_id_value}}" geography-group="property"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="neighborhood">Barrio/Zona</label>
+                                    <select class="form-control edit-on-change-select" id="neighborhood" name="neighborhood" placeholder="Barrio/Zona" value="{{property.neighborhood.id}}" geography-group="property"{{can_edit|yesno:', disabled'}}>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-5 col-xs-12">
+                                <div class="form-group">
+                                    <label for="street">Calle</label>
+                                    <input type="text" class="form-control edit-on-change mandatory" id="street" name="street" placeholder="Calle" value="{{property.street}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 col-xs-4">
+                                <div class="form-group">
+                                    <label for="number">Número</label>
+                                    <input type="text" class="form-control edit-on-change mandatory" id="number" name="number" placeholder="Número" value="{{property.number|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 col-xs-4">
+                                <div class="form-group">
+                                    <label for="floor">Piso</label>
+                                    <input type="text" class="form-control edit-on-change" id="floor" name="floor" placeholder="Piso" value="{{property.floor|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-xs-4">
+                                <div class="form-group">
+                                    <label for="apartment">Departamento</label>
+                                    <input type="text" class="form-control edit-on-change" id="apartment" name="apartment" placeholder="Departamento" value="{{property.apartment|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="intersecting-street-1">Entre calle 1</label>
+                                    <input type="text" class="form-control edit-on-change" id="intersecting-street-1" name="intersecting-street-1" placeholder="Entre calle 1" value="{{property.intersecting_street_1|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="intersecting-street-2">Entre calle 2</label>
+                                    <input type="text" class="form-control edit-on-change" id="intersecting-street-2" name="intersecting-street-2" placeholder="Entre calle 2" value="{{property.intersecting_street_2|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label for="anonymous-address">Dirección ficticia</label>
+                                    <input type="text" class="form-control edit-on-change" id="anonymous-address" name="anonymous-address" placeholder="Dirección ficticia" value="{{property.anonymous_address|default_if_none:''}}"{{can_edit|yesno:', disabled'}}>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label for="description">Descripción</label>
+                                    <textarea type="text" rows="6" class="form-control edit-on-change" id="description" name="description" placeholder="Descripción"{{can_edit|yesno:', disabled'}}>{{property.description|default_if_none:''}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if property.id != 0 %}
+                    <div class="box-footer">
+                        <div class="row">
+                            <div class="col-sm-8 col-xs-12">
+                                <button id="excel-pfd-file" type="button" property-id="{{property.id}}" class="property-file-button btn btn-primary">
+                                    <i class="fa fa-file-excel-o"></i> <i class="fa fa-file-pdf-o"></i> Ficha Excel /  PDF
+                                </button><!--&nbsp;
+                                <button type="button" class="btn btn-default">
+                                    <i class="fa fa-link"></i> Vincular Propiedad
+                                </button>-->
+                            </div>
+                            {% if can_edit %}
+                                <div class="col-sm-4 col-xs-12">
+                                    <button type="button" class="btn btn-danger pull-right" id="remove-property">
+                                        <i class="fa fa-trash"></i> Eliminar Propiedad
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        {% if property.id != 0 %}
+            <div class="col-xs-12">
+                <form id="property-appraisal" name="property-appraisal" property-id="{{property.id}}" action="" method="POST">
+                    {% csrf_token %}
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Tasación</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="checkbox">
+                                                <label><input {% if property.for_sale %}checked {%endif%}type="checkbox" class="edit-on-change-checkbox forces-status" id="for-sale" name="for-sale" value="{{property.for_sale}}"{{can_edit|yesno:', disabled'}}> <b>En venta</b></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label for="sale-price">Precio de Venta</label>
+                                                <input type="text" class="form-control edit-on-change touch-spin forces-status{% if not can_edit %} blocked{% endif %}" id="sale-price" name="sale-price" placeholder="Precio de Venta" value="{{property.sale_price|default_if_none:'0'}}"{{can_edit|yesno:', disabled'}}>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label for="sale-price-usd">Precio de Venta USD</label>
+                                                <input type="text" class="form-control edit-on-change touch-spin forces-status{% if not can_edit %} blocked{% endif %}" id="sale-price-usd" name="sale-price-usd" placeholder="Precio de Venta USD" value="{{property.sale_price_usd|default_if_none:'0'}}"{{can_edit|yesno:', disabled'}}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="checkbox">
+                                                <label><input {% if property.for_rent %}checked {%endif%}type="checkbox" class="edit-on-change-checkbox forces-status" id="for-rent" name="for-rent" value="{{property.for_rent}}"{{can_edit|yesno:', disabled'}}> <b>En alquiler</b></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label for="rent-price">Precio de Alquiler</label>
+                                                <input type="text" class="form-control edit-on-change touch-spin forces-status{% if not can_edit %} blocked{% endif %}" id="rent-price" name="rent-price" placeholder="Precio de Alquiler" value="{{property.rent_price|default_if_none:'0'}}"{{can_edit|yesno:', disabled'}}>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label for="rent-price-usd">Precio de Alquiler USD</label>
+                                                <input type="text" class="form-control edit-on-change touch-spin forces-status{% if not can_edit %} blocked{% endif %}" id="rent-price-usd" name="rent-price-usd" placeholder="Precio de Alquiler USD" value="{{property.rent_price_usd|default_if_none:'0'}}"{{can_edit|yesno:', disabled'}}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        {% if property.id != 0 %}
+            <div class="col-sm-6 col-xs-12">
+                <div class="box box-danger">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Características</h3>
+                        <div class="box-tools pull-right">
+                            <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                            {% if can_edit %}
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a id="edit-attributes">Editar Características</a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body attributes chat">
+                        {% if property.has_extra_attributes %}
+                            {% for attribute in property.extra_attributes %}
+                                {% if attribute.value or attribute.type == 'custom' %}
+                                    <div class="item" id="{{attribute.field_name}}">
+                                        <img src="{% with 'collaborative_crm/images/misc/'|add:attribute.image as image_static %}{% static image_static %}{% endwith %}" alt="user image" class="offline">
+                                        <p class="message">
+                                            <a class="name attribute">
+                                                {{attribute.description}}
+                                            </a>
+                                            <small>
+                                                {{attribute.formatted_value|default:'-'}}
+                                            </small>
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="item">
+                                <img src="{% static 'collaborative_crm/images/misc/info.png' %}" alt="user image" class="offline">
+                                <p class="message">
+                                    <a class="name attribute">
+                                        <small class="text-muted pull-right"></small>
+                                    </a>
+                                    <b>Sin características informados</b>
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="col-sm-6 col-xs-12">
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Contactos interesados</h3>
+                    <div class="box-tools pull-right">
+                        <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                        {% if property.id != 0 %}
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-user-plus"></i>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="/crm/nuevo_contacto/interesado/{{property.id}}" target="_blank">Crear contacto interesado</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body interested-contacts chat">
+                    {% if interested_contacts %}
+                        {% for interested_contact in interested_contacts %}
+                            <div class="item">
+                                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="chat-default">
+                                <p class="message">
+                                    <a class="name interested-contact" contact-id="{{interested_contact.contact.id}}">
+                                        <small class="text-muted pull-right"><i class="fa fa-calendar"></i> {{interested_contact.last_modified_datetime|utc_to_local_tz:'%d/%m/%Y'}}</small>
+                                        {{interested_contact.contact}}
+                                    </a>
+                                    <small>
+                                        {{interested_contact.commentary|default:'Sin comentarios'|truncatechars:100}}
+                                    </small>
+                                </p>
+                            </div>
+                        {% endfor %}
+                    {% elif contact_relationship_type == 'interested' %}
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="chat-default">
+                            <p class="message">
+                                <a class="name" id="new-property-interested-contact" contact-id="{{contact.id}}" style="cursor: default; color: #000000;">
+                                    <small class="text-muted pull-right"><i class="fa fa-calendar"></i> {% now 'd/m/Y' %}</small>
+                                    {{contact}}
+                                </a>
+                                <small>
+                                    Sin comentarios
+                                </small>
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" alt="user image" class="chat-default">
+                            <p class="message">
+                                <a class="name">
+                                    <small class="text-muted pull-right"></small>
+                                </a>
+                                <b>Sin contactos interesados</b>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if property.id != 0 %}
+            <div class="col-sm-6 col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Multiposteo</h3>
+                        <div class="box-tools pull-right">
+                            <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                            {% if can_edit %}
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-wrench"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="/crm/">Configurar multiposteo</a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body multi-posting chat">
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/portals/zonaprop.png' %}" alt="user image" class="chat-primary">
+                            <p class="message">
+                                <a href="#" class="name">
+                                    <small class="text-muted pull-right posted-ok"><i class="fa fa-check"></i> Posteado</small>
+                                    ZonaProp
+                                </a>
+                                <small>
+                                    <a href="http://www.zonaprop.com" target="_blank" class="portal-link">http://www.zonaprop.com/xxxxxxxxxxxxx</a>
+                                </small>
+                            </p>
+                        </div>
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/portals/argenprop.png' %}" alt="user image" class="chat-primary">
+                            <p class="message">
+                                <a href="#" class="name">
+                                    <small class="text-muted pull-right posted-error"><i class="fa fa-times"></i> No posteado</small>
+                                    Argenprop
+                                </a>
+                                <small>
+                                    No posteado
+                                </small>
+                            </p>
+                        </div>
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/portals/facebook.png' %}" alt="user image" class="chat-primary">
+                            <p class="message">
+                                <a href="#" class="name">
+                                    <small class="text-muted pull-right posted-warning"><i class="fa fa-warning"></i> Desactualizado</small>
+                                    Facebook
+                                </a>
+                                <small>
+                                    <a href="http://www.facebook.com" target="_blank" class="portal-link">http://www.facebook.com/xxxxxxxxxxxxx</a>
+                                </small>
+                            </p>
+                        </div>
+                        <div class="item">
+                            <img src="{% static 'collaborative_crm/images/portals/mercadolibre.jpg' %}" alt="user image" class="chat-primary">
+                            <p class="message">
+                                <a href="#" class="name">
+                                    <small class="text-muted pull-right posted-warning"><i class="fa fa-warning"></i> Faltan campos obligatorios</small>
+                                    Mercado Libre ARG
+                                </a>
+                                <small>
+                                    <a href="http://www.mercadolibre.com.ar" target="_blank" class="portal-link">http://www.mercadolibre.com.ar/xxxxxxxxxxxxx</a>
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="col-sm-6 col-xs-12">
+            <div class="box box-warning">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Historial</h3>
+                    <div class="box-tools pull-right">
+                        <!--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-filter"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a id="show-filter-history"><i class="fa fa-filter"></i> Filtrar</a></li>
+                                <li><a id="remove-history-filters"><i class="fa fa-times"></i> Quitar filtros</a></li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body history chat">
+                    {% include 'collaborative_crm/history_data.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade created-property-modal" id="created-property-modal" aria-labelledby="myModalLabel" style="z-index: 1051;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Propiedad creada</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    Se creó una nueva propiedad exitosamente
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade remove-property-modal" id="remove-property-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar borrado</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea eliminar la propiedad <b>{{property}}</b>?
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-remove" data-dismiss="modal">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if can_edit %}
+        <div class="modal fade edit-attributes-modal" id="edit-attributes-modal" aria-labelledby="myModalLabel">
+            <div class="modal-dialog edit-attributes" role="document">
+                <div class="modal-content">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"> {{property}} - Características</h4>
+                    </div>
+                    <div class="modal-body panel-heading body-content">
+                        <table class="table custom-table-style" id="extra-attributes-table">
+                            <thead>
+                                <tr>
+                                    <td><b>Característica</b></td>
+                                    <td><b>Tipo</b></td>
+                                    <td><b>Valor</b></td>
+                                    <td><b>Unidad</b></td>
+                                    <td> </td>
+                                    <td> </td>
+                                    <td> </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attribute in property.extra_attributes %}
+                                    <tr id="{{attribute.field_name}}" class="{{attribute.type}} {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+                                        <td>{{attribute.description}}</td>
+                                        <td>{% if attribute.type == 'common' %}Común{% else %}Agregado{% endif %}</td>
+                                        <td><input class="{% if attribute.format == 'Número' %}touchspin{% else %}text{% endif %}" type="text" maxlength="200" id="value" value="{{attribute.value|default:''}}"></td>
+                                        <td>{% if attribute.type == 'common' %}{{attribute.unit.value}}{% else %}<input type="text" maxlength="5" id="unit-value" class="unit-value" value="{{attribute.unit.value}}">{% endif %}</td>
+                                        <td>
+                                            <div class="checkbox">
+                                                <label><input {% if attribute.format == 'Número' %}checked {%endif%}type="checkbox" id="numeric-attribute" class="numeric-attribute"{% if attribute.type == 'common' %} disabled{%endif%}> <b>Numérico</b></label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox">
+                                                <label><input {% if attribute.unit.type == 'prefix' %}checked {%endif%}type="checkbox" id="unit-before" class="unit-before"{% if not attribute.unit or attribute.type == 'common' %} disabled{%endif%}> <b>Unidad delante</b></label>
+                                            </div>
+                                        </td>
+                                        <td><a class="remove-attribute"><i class="fa fa-trash"></i></a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer panel-heading">
+                        <button class="btn btn-primary pull-left" id="add-attribute"><i class="fa fa-plus"></i> Agregar</button>
+                        <button class="btn btn-default" data-dismiss="modal">Volver</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if can_edit %}
+        <div class="modal fade images-modal" id="images-modal" aria-labelledby="myModalLabel">
+            <div class="modal-dialog images" role="document">
+                <div class="modal-content">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"> {{property}} - Imágenes</h4>
+                    </div>
+                    <div class="modal-body panel-heading body-content">
+                        {% if property.images %}
+                            <button id="image-gallery-button" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-picture"></i> Ver</button>
+                            <br><br>
+                            <div id="links">
+                                {% for image in property.images %}
+                                    <div class="img-link" img-id="{{image.id}}">
+                                        <a href="{{image.image_url}}" title="{{image.description}}" data-gallery="">
+                                            <img class="blueimp-gallery-link" src="{{image.image_url}}">
+                                        </a>
+                                        <div class="form-group">
+                                            <label><input {% if image.cover_image %}checked {%endif%}type="radio" class="cover-image" name="cover-image" value="{{image.id}}"> <b class="small">Portada</b></label><br>
+                                            <b class="small edit-image-description" img-id="{{image.id}}"><i class="fa fa-edit"></i> Descripción</b><br>
+                                            <b class="small remove-image" img-id="{{image.id}}"><i class="fa fa-trash"></i> Borrar</b>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <label>Sin imágenes subidas</label>
+                        {% endif %}
+                        <hr class="dark-hr">
+                        <label>Subir imágenes</label>
+                        <form id="uploadImages" class="dropzone" action="/crm/propiedad/{{property.id}}/subir_imagenes" method="POST">
+                            {% csrf_token %}
+                            <div class="dz-message" data-dz-message>
+                                <span>Arrastrar imágenes o hacer click</span><br>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer panel-heading">
+                        <button class="btn btn-default" data-dismiss="modal">Volver</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div id="links" style="display: none;">
+            {% for image in property.images %}
+                <a href="{{image.image_url}}" title="{{image.description}}" data-gallery="">
+                    <img class="blueimp-gallery-link" src="{{image.image_url}}">
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    <div class="modal fade image-description-modal" id="image-description-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog image-description" role="document">
+            <div class="modal-content">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Descripción de imagen</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    <textarea id="image-description" rows="3" style="width: 100%;"></textarea>
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button id="save-image-description" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block importsWithoutDefaultModals %}
+    <!--DataTables-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'collaborative_crm/DataTables/Responsive-2.0.2/css/responsive.bootstrap.min.css' %}">
+    <script src="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'collaborative_crm/DataTables/Responsive-2.0.2/js/dataTables.responsive.min.js' %}"></script>
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/property.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/property.js' %}"></script>
+{% endblock %}

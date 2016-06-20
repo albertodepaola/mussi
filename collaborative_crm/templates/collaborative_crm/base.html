@@ -1,0 +1,516 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta id="user" user-id="{{user.id}}" notifications-tone-id="{{user.notifications_tone.id}}" messages-tone-id="{{user.messages_tone.id}}">
+  <title>{{web_title}}</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.6 -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/bootstrap/css/bootstrap.min.css' %}">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/font-awesome/css/font-awesome.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/ionicons/css/ionicons.min.css' %}">
+  <!--Common CSS styles for all pages-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/base.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/AdminLTE/css/AdminLTE.min.css' %}">
+  <!-- AdminLTE Skin-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/AdminLTE/css/skins/_all-skins.min.css' %}">
+  <!--Dropzone-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/dropzone/css/dropzone.min.css' %}">
+  <!--Select2-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/select2/css/select2.min.css' %}">
+  <!--BlueImp Gallery-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm//bootstrap-image-gallery/blueimp-gallery/css/blueimp-gallery.min.css' %}">
+  <link rel="stylesheet" href="{% static 'collaborative_crm//bootstrap-image-gallery/css/bootstrap-image-gallery.min.css' %}">
+  <!--TouchSpin-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/touchspin/css/jquery.bootstrap-touchspin.min.css' %}">
+  <!--Tooltipster-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/tooltipster/css/tooltipster.css' %}">
+  <link rel="stylesheet" href="{% static 'collaborative_crm/tooltipster/css/themes/tooltipster-validation.css' %}">
+  <!--DateTimePicker-->
+  <link rel="stylesheet" href="{% static 'collaborative_crm/datetimepicker/css/bootstrap-datetimepicker.min.css' %}">
+  <!-- bootstrap wysihtml5 - text editor -->
+  <!-- <link rel="stylesheet" href="{% static 'collaborative_crm/bootstrap-wysihtml5/css/bootstrap3-wysihtml5.min.css' %}"> -->
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header class="main-header">
+    <!-- Logo -->
+    <a href="/crm/" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini">L<b>Pr</b></span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg">Linked<b>Prop</b></span>
+    </a>
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <li class="search-li">
+            <a class="search-a">
+              <input type="text" id="search-box" class="form-control search-item" search-item-order="0" placeholder="Buscar..." autocomplete="off">
+              <div class="search-results-container">
+                <div class="search-results">
+                </div>
+                <div class="search-result">
+                  <a id="new-contact-search-result" href="/crm/nuevo_contacto" class="search-item">
+                    <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}"/>&nbsp;<b>Nuevo contacto</b>
+                  </a>
+                </div>
+                <!--<div class="search-result">-->
+                  <!--<a id="new-property-search-result" href="/crm/propiedad/0" class="search-item">-->
+                    <!--<img src="{% static 'collaborative_crm/images/misc/default_property.png' %}" height="30px" width="30px"/>&nbsp;<b>Nueva propiedad</b>-->
+                  <!--</a>-->
+                <!--</div>-->
+              </div>
+            </a>
+          </li>
+          <!-- Control Sidebar Toggle Button -->
+          <!--<li class="pull-right">-->
+            <!--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>-->
+          <!--</li>-->
+          <!-- User Account: style can be found in dropdown.less -->
+          <li class="dropdown user user-menu pull-right">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="user-image" alt="User Image">
+              <span class="hidden-xs">{{user.full_name}}</span>
+            </a>
+            <ul class="dropdown-menu">
+              <!-- User image -->
+              <li class="user-header">
+                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="img-circle" alt="User Image">
+                <p>
+                  {{user.full_name}}
+                  <small>{{user.first_group_name}}</small>
+                </p>
+              </li>
+              <!-- Menu Body -->
+              <li class="user-body">
+              </li>
+              <!-- Menu Footer-->
+              <li class="user-footer">
+                <div class="pull-left">
+                  <a href="/crm/perfil" class="btn btn-default btn-flat">Perfil/Opciones</a>
+                </div>
+                <form id="logout" action="/logout_usuario" method="POST">
+                  {% csrf_token %}
+                  <div class="pull-right">
+                    <button type="submit" class="btn btn-default btn-flat">Salir</button>
+                  </div>
+                </form>
+              </li>
+            </ul>
+          </li>
+          {% include 'collaborative_crm/notifications.html' %}
+          {% include 'collaborative_crm/messages_box.html' %}
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- Sidebar user panel -->
+      <div class="company-logo">
+        {% if user.company.logo_image %}
+          <img class="company-logo" src="{{user.company.logo_url}}">
+        {% elif perms.collaborative_crm.edit_config %}
+          <form id="uploadCompanyLogoBasePage" class="company-logo dropzone" action="/crm/empresa/{{user.company.id}}/actualizar_logo" method="POST">
+            {% csrf_token %}
+            <div class="dz-message" data-dz-message>
+                <span class="small"><b>LOGO</b> - Arrastrar imagen o hacer click</span><br>
+                <span class="small">Resolución sugerida: 200x50</span>
+            </div>
+          </form>
+        {% endif %}
+      </div>
+      <div class="user-panel">
+        <div class="pull-left image">
+          <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="img-circle" alt="User Image">
+        </div>
+        <div class="pull-left info">
+          <p>{{user.full_name}}</p>
+          <a><i class="fa fa-circle text-success"></i> Online</a>
+        </div>
+      </div>
+      <!-- sidebar menu: : style can be found in sidebar.less -->
+      <ul class="sidebar-menu">
+        <li class="header">NAVEGAR</li>
+        <li class="{% if page_name == 'news' %} active {% endif %}">
+          <a href="/crm/noticias">
+            <i class="fa fa-newspaper-o"></i> <span>Noticias</span>
+          </a>
+        </li>
+        <li class="treeview {% if page_name == 'contact' %} active {% endif %}">
+          <a href="#">
+            <i class="fa fa-phone"></i> <span>Contactos</span> <i class="fa fa-angle-left pull-right"></i>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="/crm/contactos"><i class="fa fa-users"></i> Todos los contactos</a></li>
+            <li><a href="/crm/mis_contactos"><i class="fa fa-user"></i> Mis contactos</a></li>
+            <li><a href="/crm/"><i class="fa fa-line-chart"></i> Seguimiento</a></li>
+            <li><a href="/crm/nuevo_contacto"><i class="fa fa-user-plus"></i> Nuevo contacto</a></li>
+          </ul>
+        </li>
+        <li class="treeview {% if page_name == 'property' %} active {% endif %}">
+          <a href="#">
+            <i class="fa fa-home"></i> <span>Propiedades</span> <i class="fa fa-angle-left pull-right"></i>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="/crm/propiedades"><i class="fa fa-circle-o"></i> Todas las propiedades</a></li>
+            <li><a href="/crm/mis_propiedades"><i class="fa fa-user"></i> Mis propiedades</a></li>
+            <li><a href="/crm/propiedad/0"><i class="fa fa-plus"></i> Nueva propiedad</a></li>
+          </ul>
+        </li>
+        {% if perms.collaborative_crm.view_company_pages %}
+          <li class="treeview {% if page_name == 'my_company' %} active {% endif %}">
+            <a href="#">
+              <i class="fa fa-university"></i> <span>Mi Empresa</span> <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+              {% if perms.collaborative_crm.edit_config %}<li><a href="/crm/mi_empresa/configuracion"><i class="fa fa-gears"></i> Configuración</a></li>{% endif %}
+              {% if perms.collaborative_crm.edit_branches %}<li><a href="/crm/mi_empresa/sucursales"><i class="fa fa-home"></i> Sucursales</a></li>{% endif %}
+              {% if perms.collaborative_crm.edit_agents %}<li><a href="/crm/mi_empresa/agentes"><i class="fa fa-users"></i> Agentes</a></li>{% endif %}
+              <li><a href="/crm/"><i class="fa fa-laptop"></i> Portales</a></li>
+            </ul>
+          </li>
+        {% endif %}
+        <li class="{% if page_name == 'messages' %} active {% endif %}">
+          <a href="/crm/mensajes">
+            <i class="fa fa-envelope"></i> <span>Mensajes</span>
+            <small id="unred-messages-sidebar" class="label pull-right bg-yellow" style="display: {% if user.unred_messages_count %}block{% else %}none{% endif %};">{{user.unred_messages_count}}</small>
+          </a>
+        </li>
+        <li><a href="/crm/"><i class="fa fa-info-circle"></i> <span>Sobre LinkedProp</span></a></li>
+      </ul>
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    {% block page_header %}
+      <section class="content-header">
+        <h1>
+          {{page_title}}
+          <small>{{page_sub_title}}</small>
+        </h1>
+        {% block breadcrumb %}{% endblock %}
+      </section>
+    {% endblock %}
+
+    <!-- Main content -->
+    <section class="content">
+		{% block content %}{% endblock %}
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right hidden-xs">
+      <b>Versión</b> 0.1
+    </div>
+    <strong>Copyright &copy; 2016.</strong> Todos los derechos reservados.
+  </footer>
+
+  <!-- Control Sidebar -->
+  <!--<aside class="control-sidebar control-sidebar-dark">-->
+    <!--&lt;!&ndash; Create the tabs &ndash;&gt;-->
+    <!--<ul class="nav nav-tabs nav-justified control-sidebar-tabs">-->
+      <!--<li><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>-->
+      <!--<li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>-->
+    <!--</ul>-->
+    <!--&lt;!&ndash; Tab panes &ndash;&gt;-->
+    <!--<div class="tab-content">-->
+      <!--&lt;!&ndash; Home tab content &ndash;&gt;-->
+      <!--<div class="tab-pane" id="control-sidebar-home-tab">-->
+        <!--<h3 class="control-sidebar-heading">Recent Activity</h3>-->
+        <!--<ul class="control-sidebar-menu">-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<i class="menu-icon fa fa-birthday-cake bg-red"></i>-->
+
+              <!--<div class="menu-info">-->
+                <!--<h4 class="control-sidebar-subheading">Langdon's Birthday</h4>-->
+
+                <!--<p>Will be 23 on April 24th</p>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<i class="menu-icon fa fa-user bg-yellow"></i>-->
+
+              <!--<div class="menu-info">-->
+                <!--<h4 class="control-sidebar-subheading">Frodo Updated His Profile</h4>-->
+
+                <!--<p>New phone +1(800)555-1234</p>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<i class="menu-icon fa fa-envelope-o bg-light-blue"></i>-->
+
+              <!--<div class="menu-info">-->
+                <!--<h4 class="control-sidebar-subheading">Nora Joined Mailing List</h4>-->
+
+                <!--<p>nora@example.com</p>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<i class="menu-icon fa fa-file-code-o bg-green"></i>-->
+
+              <!--<div class="menu-info">-->
+                <!--<h4 class="control-sidebar-subheading">Cron Job 254 Executed</h4>-->
+
+                <!--<p>Execution time 5 seconds</p>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+        <!--</ul>-->
+        <!--&lt;!&ndash; /.control-sidebar-menu &ndash;&gt;-->
+
+        <!--<h3 class="control-sidebar-heading">Tasks Progress</h3>-->
+        <!--<ul class="control-sidebar-menu">-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<h4 class="control-sidebar-subheading">-->
+                <!--Custom Template Design-->
+                <!--<span class="label label-danger pull-right">70%</span>-->
+              <!--</h4>-->
+
+              <!--<div class="progress progress-xxs">-->
+                <!--<div class="progress-bar progress-bar-danger" style="width: 70%"></div>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<h4 class="control-sidebar-subheading">-->
+                <!--Update Resume-->
+                <!--<span class="label label-success pull-right">95%</span>-->
+              <!--</h4>-->
+
+              <!--<div class="progress progress-xxs">-->
+                <!--<div class="progress-bar progress-bar-success" style="width: 95%"></div>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<h4 class="control-sidebar-subheading">-->
+                <!--Laravel Integration-->
+                <!--<span class="label label-warning pull-right">50%</span>-->
+              <!--</h4>-->
+
+              <!--<div class="progress progress-xxs">-->
+                <!--<div class="progress-bar progress-bar-warning" style="width: 50%"></div>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+          <!--<li>-->
+            <!--<a href="javascript:void(0)">-->
+              <!--<h4 class="control-sidebar-subheading">-->
+                <!--Back End Framework-->
+                <!--<span class="label label-primary pull-right">68%</span>-->
+              <!--</h4>-->
+
+              <!--<div class="progress progress-xxs">-->
+                <!--<div class="progress-bar progress-bar-primary" style="width: 68%"></div>-->
+              <!--</div>-->
+            <!--</a>-->
+          <!--</li>-->
+        <!--</ul>-->
+        <!--&lt;!&ndash; /.control-sidebar-menu &ndash;&gt;-->
+
+      <!--</div>-->
+      <!--&lt;!&ndash; /.tab-pane &ndash;&gt;-->
+      <!--&lt;!&ndash; Stats tab content &ndash;&gt;-->
+      <!--<div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>-->
+      <!--&lt;!&ndash; /.tab-pane &ndash;&gt;-->
+      <!--&lt;!&ndash; Settings tab content &ndash;&gt;-->
+      <!--<div class="tab-pane" id="control-sidebar-settings-tab">-->
+        <!--<form method="post">-->
+          <!--<h3 class="control-sidebar-heading">General Settings</h3>-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Report panel usage-->
+              <!--<input type="checkbox" class="pull-right" checked>-->
+            <!--</label>-->
+
+            <!--<p>-->
+              <!--Some information about this general settings option-->
+            <!--</p>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Allow mail redirect-->
+              <!--<input type="checkbox" class="pull-right" checked>-->
+            <!--</label>-->
+
+            <!--<p>-->
+              <!--Other sets of options are available-->
+            <!--</p>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Expose author name in posts-->
+              <!--<input type="checkbox" class="pull-right" checked>-->
+            <!--</label>-->
+
+            <!--<p>-->
+              <!--Allow the user to show his name in blog posts-->
+            <!--</p>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+
+          <!--<h3 class="control-sidebar-heading">Chat Settings</h3>-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Show me as online-->
+              <!--<input type="checkbox" class="pull-right" checked>-->
+            <!--</label>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Turn off notifications-->
+              <!--<input type="checkbox" class="pull-right">-->
+            <!--</label>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+
+          <!--<div class="form-group">-->
+            <!--<label class="control-sidebar-subheading">-->
+              <!--Delete chat history-->
+              <!--<a href="javascript:void(0)" class="text-red pull-right"><i class="fa fa-trash-o"></i></a>-->
+            <!--</label>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; /.form-group &ndash;&gt;-->
+        <!--</form>-->
+      <!--</div>-->
+      <!--&lt;!&ndash; /.tab-pane &ndash;&gt;-->
+    <!--</div>-->
+  <!--</aside>-->
+  <!-- /.control-sidebar -->
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <!--<div class="control-sidebar-bg"></div>-->
+</div>
+
+<div class="modal fade property-details-modal" id="property-details-modal" aria-labelledby="myModalLabel">
+</div>
+
+<div class="modal fade file-modal" id="file-modal" aria-labelledby="myModalLabel">
+</div>
+
+<div class="modal fade contact-details-modal" id="contact-details-modal" aria-labelledby="myModalLabel">
+</div>
+
+<div class="modal fade history-details-modal" id="history-details-modal" aria-labelledby="myModalLabel">
+</div>
+
+{% include 'collaborative_crm/filter_history_modal.html' %}
+
+<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body next"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left prev">
+                        <i class="glyphicon glyphicon-chevron-left"></i>
+                        Anterior
+                    </button>
+                    <button type="button" class="btn btn-primary next">
+                        Siguiente
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="sound" style="display: none;">
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 2.2.0 -->
+<script src="{% static 'collaborative_crm/jQuery/js/jQuery-2.2.0.min.js' %}"></script>
+<!--jQuery Cookie 1.4.1-->
+<script src="{% static 'collaborative_crm/jQuery/js/jquery.cookie.js' %}"></script>
+<!--jQuery Throttle 1.1-->
+<script src="{% static 'collaborative_crm/jQuery/js/jQuery-throttle.min.js' %}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'collaborative_crm/jQuery/js/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+</script>
+<!-- Bootstrap 3.3.6 -->
+<script src="{% static 'collaborative_crm/bootstrap/js/bootstrap.min.js' %}"></script>
+<!-- Bootstrap WYSIHTML5 -->
+<!-- <script src="{% static 'collaborative_crm/bootstrap-wysihtml5/js/bootstrap3-wysihtml5.all.min.js' %}"></script> -->
+<!-- Slimscroll -->
+<script src="{% static 'collaborative_crm/slimScroll/js/jquery.slimscroll.min.js' %}"></script>
+<!-- FastClick -->
+<script src="{% static 'collaborative_crm/fastclick/js/fastclick.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'collaborative_crm/adminLTE/js/app.min.js' %}"></script>
+<!--Dropzone-->
+<script src="{% static 'collaborative_crm/dropzone/js/dropzone.min.js' %}"></script>
+<!--Select2-->
+<script src="{% static 'collaborative_crm/select2/js/select2.min.js' %}"></script>
+<!--BlueImp Gallery-->
+<script src="{% static 'collaborative_crm//bootstrap-image-gallery/blueimp-gallery/js/jquery.blueimp-gallery.min.js' %}"></script>
+<script src="{% static 'collaborative_crm//bootstrap-image-gallery/js/bootstrap-image-gallery.min.js' %}"></script>
+<!--TouchSpin-->
+<script src="{% static 'collaborative_crm/touchspin/js/jquery.bootstrap-touchspin.min.js' %}"></script>
+<!--Tooltipster-->
+<script src="{% static 'collaborative_crm/tooltipster/js/jquery.tooltipster.min.js' %}"></script>
+<!--DateTimePicker-->
+<script src="{% static 'collaborative_crm/datetimepicker/js/moment/moment.min.js' %}"></script>
+<script src="{% static 'collaborative_crm/datetimepicker/js/moment/moment-with-locales.min.js' %}"></script>
+<script src="{% static 'collaborative_crm/datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+<!--Common JS logic for all pages-->
+<script src="{% static 'collaborative_crm/templates/js/base.js' %}"></script>
+{% block imports %}{% endblock %}
+</body>
+</html>

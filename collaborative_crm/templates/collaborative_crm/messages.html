@@ -1,0 +1,74 @@
+{% extends 'collaborative_crm/base.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/mensajes"><i class="fa fa-envelope"></i> Mensajes</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-8 col-xs-12">
+            <div id="chat-box" class="box box-primary" conversation-id="0">
+                <div class="box-header with-border">
+                    <h4 class="box-title">{% firstof selected_conversation.get_title conversations.0.get_title '' %}</h4>
+                </div>
+                <div class="box-body chat chat-box">
+                </div>
+               <div class="input-group send-message">
+                    <input type="text" class="form-control send-message" placeholder="Mensaje...">
+                    <span class="input-group-btn send-message">
+                        <button class="btn btn-primary send-message" type="button">Enviar</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+            <div id="conversations-box" class="box box-success">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Conversaciones</h4>
+                </div>
+                <div id="new-conversation">
+                    <a id="add-conversation"><i class="fa fa-plus"></i> Nueva</a>
+                </div>
+                {% include 'collaborative_crm/conversations_box.html' %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade add-conversation-modal" id="add-conversation-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog add-conversation" role="document">
+            <div class="modal-content">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="fa fa-weixin"></i> Nueva conversación</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    <div class="form-group">
+                        <label for="title">Título</label><sup>  *opcional</sup>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Título">
+                    </div>
+                    <label for="users">Incluir a</label><br>
+                    <select id="users" name="users" multiple>
+                        {% for usr in all_users_but_me %}
+                            <option value="{{usr.id}}">{{usr.full_name}} ({{usr.username}})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button id="create-conversation" class="btn btn-success" disabled><i class="fa fa-plus"></i> Crear</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/messages.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/messages.js' %}"></script>
+{% endblock %}

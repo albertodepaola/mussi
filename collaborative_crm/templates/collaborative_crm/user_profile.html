@@ -1,0 +1,207 @@
+{% extends 'collaborative_crm/base_with_modals.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb  %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/perfil"><i class="fa fa-user"></i> Perfil de mi usuario</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <form id="change-password" name="change-password" action="/crm/cambiar_password" method="POST">
+                {% csrf_token %}
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 id="change-password-box-title" class="box-title"> Cambiar password</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="current-password">Password actual</label>
+                                    <input type="password" class="form-control" id="current-password" name="current-password" placeholder="Password actual" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="new-password">Nuevo password</label>
+                                    <input type="password" class="form-control" id="new-password" name="new-password" placeholder="Nuevo password" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="new-password-repeat">Repetir nuevo password</label>
+                                    <input type="password" class="form-control" id="new-password-repeat" name="new-password-repeat" placeholder="Repetir nuevo password" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-warning btn-sm" id="change-user">
+                            <i class="fa fa-lock"></i> Cambiar password
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row user-form-row">
+        <div class="col-xs-12">
+            <form id="user-info" name="user-info" action="/crm/perfil/actualizar_datos" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 id="user-box-title" class="box-title"> Mis datos</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="email">E-mail (usuario)</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" value="{{user.username}}" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="type">Tipo</label>
+                                    <input type="text" class="form-control" id="type" name="type" placeholder="Tipo" value="{{user.first_group_name}}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="main-branch">Sucursal principal</label>
+                                    <input type="text" class="form-control" id="main-branch" name="main-branch" placeholder="Sucursal Principal" value="{{user.main_branch.name}}" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="first-name">Nombre</label>
+                                    <input type="text" class="form-control" id="first-name" name="first-name" placeholder="Nombre" value="{{user.first_name|default:''}}">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="last-name">Apellido</label>
+                                    <input type="text" class="form-control" id="last-name" name="last-name" placeholder="Apellido" value="{{user.last_name|default:''}}">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="telephone-number">Teléfono</label>
+                                    <input type="text" class="form-control" id="telephone-number" name="telephone-number" placeholder="Teléfono" value="{{user.telephone_number|default:''}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-success btn-sm" id="save-user">
+                            <i class="fa fa-save"></i> Guardar mis datos
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row notifications-config-row">
+        <div class="col-xs-12">
+            <form id="notifications" name="notifications" action="/crm/perfil/actualizar_configuracion_notificaciones" method="POST">
+                {% csrf_token %}
+                <div class="box box-danger">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Configuración de notificaciones</h3>
+                       <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <label class="user-profile-sub-title">Tonos de notificación</label>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="notifications-tone">Notificaciones  <i class="fa fa-play play-tone"></i></label>
+                                    <select class="form-control" id="notifications-tone" name="notifications-tone" placeholder="Tono de notificaciones" value="{{user.notifications_tone.id}}">
+                                        {% for tone in notification_tones %}
+                                            <option value="{{tone.id}}"{% if tone.id == user.notifications_tone.id %} selected{% endif %}>{{tone.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="messages-tone">Mensajes  <i class="fa fa-play play-tone"></i></label>
+                                    <select class="form-control" id="messages-tone" name="messages-tone" placeholder="Tono de mensajes" value="{{user.messages_tone.id}}">
+                                        {% for tone in notification_tones %}
+                                            <option value="{{tone.id}}"{% if tone.id == user.messages_tone.id %} selected{% endif %}>{{tone.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="dark-hr">
+                        <label class="user-profile-sub-title">Acciones ante eventos</label>
+                        {% for notification_type in notification_types %}
+                            {% with config=user|notification_type_config:notification_type.id %}
+                                {% if config.can_view %}
+                                    <label>{{notification_type.description}}</label>{% if not config.can_edit %} <span class="label label-warning">Administradores no permiten modificar</span>{% endif %}
+                                    <div class="row" notification-type="{{notification_type.id}}">
+                                        <div class="col-sm-3 col-xs-6">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input id="{{notification_type.id}}-notify" name="{{notification_type.id}}-notify" class="notify" type="checkbox"{% if config.notify%} checked{% endif %}{% if not config.can_edit %} disabled{% endif %}>
+                                                    Notificarme en el sitio
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 col-xs-6">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input id="{{notification_type.id}}-email" name="{{notification_type.id}}-email" class="email" type="checkbox"{% if config.email%} checked{% endif %}{% if not config.can_edit %} disabled{% endif %}>
+                                                    Enviarme email
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="dark-hr">
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-success btn-sm" id="save-config">
+                            <i class="fa fa-save"></i> Guardar configuración de notificaciones
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/user_profile.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/user_profile.js' %}"></script>
+{% endblock %}

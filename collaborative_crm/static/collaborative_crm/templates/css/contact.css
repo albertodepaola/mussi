@@ -1,0 +1,12 @@
+a.show-more, a.name, a#new-search{
+    cursor: pointer;
+}
+
+a#change-search-parameters, a#change-search-commentary, a.search-result-show-property-details {
+    cursor: pointer;
+    font-size: 11px;
+}
+
+#property-details-modal{
+    z-index: 1051;
+}

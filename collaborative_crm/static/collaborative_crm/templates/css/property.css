@@ -1,0 +1,55 @@
+.edit-attribute {
+    color: black;
+}
+
+.edit-attribute.remove:hover {
+    color: red;
+}
+
+a.portal-link {
+    color: black;
+    cursor: pointer;
+}
+
+a.portal-link:hover {
+    color: orange;
+}
+
+a.show-more, a.name {
+    cursor: pointer;
+}
+
+.modal-dialog.contact-details, .modal-dialog.edit-attributes, .modal-dialog.images {
+    width: 95%;
+}
+
+.posted-ok {
+    color: #00a65a;
+}
+
+.posted-warning {
+    color: #f39c12;
+}
+
+.posted-error {
+    color: #dd4b39;
+}
+
+a.name.attribute {
+    cursor: default;
+    color: #000000;
+}
+
+.remove-attribute {
+    cursor: pointer;
+    color: #dd4b39;
+}
+
+#view-images {
+    color: #3c8dbc;
+    cursor: pointer;
+}
+
+#property-cover-image {
+    cursor: pointer;
+}

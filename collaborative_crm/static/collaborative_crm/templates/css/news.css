@@ -1,0 +1,82 @@
+.news-col {
+	border-right: solid #d2d6de 2px;
+}
+
+.news-filters-col {
+    border-bottom: solid #d2d6de 2px;
+}
+
+form#news-filters b {
+    font-size: 11px;
+}
+
+form#news-filters .radio {
+    font-size: 10px;
+    font-weight: normal;
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+form#news-filters input[type=radio]{
+    margin-left: -15px;
+    margin-top: 0px;
+    cursor: pointer;
+}
+
+label.news-week {
+    position: relative;
+    font-size: 20px;
+    color: #8A0808;
+    width: calc(100% - 15px);
+    background-color: #ecf0f5;
+    z-index: 1;
+    height: 26px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.news-row {
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.news-box-header {
+    height: 25px;
+    padding-top: 0px;
+}
+
+.news-box-header a {
+    cursor: pointer;
+}
+
+.news-box-body {
+    font-size: 12px;
+}
+
+.news-box-body a {
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.news-box-body img {
+    width: 40%;
+    height: 95%;
+    border: solid #000000 1px;
+    position: absolute;
+    top: 5px;
+}
+
+.news-box-body a {
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.news-data {
+    padding-left: 45%;
+}
+
+.modal-dialog.property-details, .modal-dialog.contact-details {
+    width: 95%;
+}

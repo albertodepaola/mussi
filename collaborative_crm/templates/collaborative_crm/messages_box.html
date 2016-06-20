@@ -1,0 +1,38 @@
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+<li id="messages" class="dropdown messages-menu pull-right">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-envelope-o"></i>
+        <span id="unred-messages" class="label label-danger" style="display: {% if user.unred_messages_count %}block{% else %}none{% endif %};">{{user.unred_messages_count}}</span>
+    </a>
+    <ul class="dropdown-menu">
+        <li class="header">{% if user.unred_messages_count %}Tiene {{user.unred_messages_count}} mensaje{{user.unred_messages_count|pluralize}} sin leer{% else %}No tiene mensajes sin leer{% endif %}</li>
+        <li>
+            <ul class="menu">
+                {% for conversation in user.conversations_last_15 %}
+                    <li id="{{conversation.id}}" class="conversation{% if conversation|unred_messages:user %} unred-messages{% endif %}">
+                        <a href="/crm/mensajes/{{conversation.id}}">
+                            <div class="pull-left">
+                                <img src="{% static 'collaborative_crm/images/misc/default_user.png' %}" class="img-circle" alt="User Image">
+                            </div>
+                            <h4>
+                                {{conversation.get_title}}
+                                <small><i class="fa fa-clock-o"></i> {{conversation.time_ago}}</small>
+                            </h4>
+                            <p>
+                                {% if conversation|unred_messages:user %}
+                                    {{conversation|unred_messages:user|length}} mensaje{{conversation|unred_messages:user|length|pluralize}} sin leer
+                                {% elif conversation.latest_message %}
+                                    {{conversation.latest_message.user_from|name_me:user}}: {{conversation.latest_message.content}}
+                                {% else %}
+                                    Sin mensajes
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li class="footer"><a href="/crm/mensajes">Ver todos</a></li>
+    </ul>
+</li>

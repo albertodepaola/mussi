@@ -1,0 +1,223 @@
+{% extends 'collaborative_crm/base.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/mi_empresa/configuracion"><i class="fa fa-university"></i> Mi Empresa</a></li>
+        <li class="active"><a href="/crm/mi_empresa/agentes"><i class="fa fa-users"></i> Agentes</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table custom-table-style">
+                <thead><tr><td>Agentes activos</td><td>Precio mensual</td><td> </td></tr></thead>
+                <tbody><tr><td><b>{{company.users|length}}</b></td><td><b>$ x.xxx</b></td><td><b><a href="/crm/">Ver precios</a></b></td></tr></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table custom-table-style" id="users-table">
+                <thead>
+                    <tr>
+                        <td colspan="4">Agentes</td>
+                    </tr>
+                    <tr>
+                        <td><b>E-mail (usuario)</b></td>
+                        <td><b>Nombre</b></td>
+                        <td><b>Tipo</b></td>
+                        <td> </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usr in company.users %}
+                        <tr id="{{usr.id}}" class="user-row {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+                            <td class="username">{{usr.username}}</td>
+                            <td class="name">{{usr.full_name}}</td>
+                            <td class="type">{{usr.first_group_name}}</td>
+                            {% if usr.is_admin %}
+                                <td></td>
+                            {% elif not user|permissions_over:usr %}
+                                <td></td>
+                            {% elif usr.is_super_agent and not user.is_admin %}
+                                <td></td>
+                            {% else %}
+                                <td>
+                                    <a class="edit-user link"><i class="fa fa-edit"></i></a>&nbsp;
+                                    <a class="reset-password link"><i class="fa fa-lock"></i><i class="fa fa-undo"></i></a>&nbsp;
+                                    <a class="remove-user link"><i class="fa fa-trash"></i></a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button id="add-user" class="btn btn-primary">
+                <i class="fa fa-user-plus"></i> Crear agente
+            </button>
+            <br><br>
+        </div>
+    </div>
+    <div class="row user-form-row">
+        <div class="col-xs-12">
+            <form id="user-info" name="user-info" company-id="{{company.id}}" user-id="0" action="/crm/empresa/{{company.id}}/usuarios/0/actualizar_datos" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 id="user-box-title" class="box-title"> Nuevo Usuario</h3>&nbsp;&nbsp;<a id="scroll-to-zero" class="link small"> <b>Volver arriba</b></a>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="email">E-mail (usuario) <span id="existing-username" class="label label-danger" style="display: none;">Usuario existente</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <label for="first-name">Tipo</label>
+                                <select class="form-control" id="type" name="type" required{% if groups|length <= 1 %} disabled{% endif %}>
+                                    {% for group in groups %}
+                                        <option value="{{group.id}}" super-agent="{% if group.is_super_agent %}yes{% else %}no{% endif %}">{{group.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <br>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <label for="main-branch">Sucursal principal</label>
+                                <select class="form-control" id="main-branch" name="main-branch">
+                                    <option value="0"> -</option>
+                                    {% for branch in company.branches %}
+                                        <option value="{{branch.id}}">{{branch.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="first-name">Nombre</label>
+                                    <input type="text" class="form-control" id="first-name" name="first-name" placeholder="Nombre" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="last-name">Apellido</label>
+                                    <input type="text" class="form-control" id="last-name" name="last-name" placeholder="Apellido" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="telephone-number">Teléfono</label>
+                                    <input type="text" class="form-control" id="telephone-number" name="telephone-number" placeholder="Teléfono">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row users-in-charge-row" style="display: none;">
+                            <div class="col-xs-12">
+                                <label for="users-in-charge">Agentes a cargo</label>
+                                <select class="form-control" id="users-in-charge" name="users-in-charge" multiple>
+                                    {% for usr in company.users %}
+                                        {% if not usr.is_admin and usr != user %}
+                                            <option value="{{usr.id}}" branch-id="{{usr.main_branch.id}}">{{usr.full_name}} ({{usr.username}})</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <button id="users-in-charge-add-all" type="button" class="btn btn-primary btn-xs btn-100">Agregar todos los agentes de la empresa</button>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <button id="users-in-charge-add-all-branch" type="button" class="btn btn-default btn-xs btn-100">Agregar todos los agentes de mi sucursal</button>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <button id="users-in-charge-remove-all" type="button" class="btn btn-danger btn-xs btn-100">Quitar todos</button>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="add-new-users-to-my-charge" name="add-new-users-to-my-charge" type="checkbox">
+                                        Agregar nuevos agentes automáticamente
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="add-my-branch-users-to-my-charge" name="add-my-branch-users-to-my-charge" type="checkbox">
+                                        Agregar agentes de su sucursal automáticamente
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-success" id="save-user">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade reset-password-modal" id="reset-password-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar reseteo de password</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea resetear el password del usuario <b id="reset-password-user-name"></b>?
+                    <br><br>
+                    <b id="new-password"></b>
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-reset-password">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal" id="cancel-back-button">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade remove-user-modal" id="remove-user-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar borrado</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea eliminar el usuario <b id="remove-user-name"></b>?
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-remove" data-dismiss="modal">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--DataTables-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'collaborative_crm/DataTables/Responsive-2.0.2/css/responsive.bootstrap.min.css' %}">
+    <script src="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'collaborative_crm/DataTables/DataTables-1.10.11/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'collaborative_crm/DataTables/Responsive-2.0.2/js/dataTables.responsive.min.js' %}"></script>
+    <!--Select2-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/select2/css/select2.min.css' %}">
+    <script src="{% static 'collaborative_crm/select2/js/select2.min.js' %}"></script>
+    <!--Template Specific-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/my_company_agents.css' %}">
+    <script src="{% static 'collaborative_crm/templates/js/my_company_agents.js' %}"></script>
+{% endblock %}

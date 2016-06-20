@@ -1,0 +1,12 @@
+<div class="contact-status" style="background-color: {{contact.get_status.background_color_rgb}}; color: {{contact.get_status.font_color}}; font-size: {{font_size|default:12}}px;{{no_border|yesno:', border: 1px solid #000000'}};">
+    {{contact.get_status.name}}
+</div>
+{% if not do_not_load_actions %}
+    <div class="contact-status-actions-container" style="display: none;">
+        {% for action in contact.get_status.actions %}
+            <div class="contact-status-action{% if forloop.counter < contact.get_status.actions|length %} not-last{% endif %}" action-id="{{action.id}}">
+                {{action.name}}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

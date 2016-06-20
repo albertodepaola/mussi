@@ -1,0 +1,379 @@
+html {
+    overflow-y: hidden;
+    height: 100%;
+}
+
+.content-wrapper {
+    height: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+div.navbar-custom-menu {
+    width: 85% !important;
+}
+
+ul.nav.navbar-nav {
+    width: 100% !important;
+}
+
+ul.dropdown-menu {
+    border-bottom: solid #000000 1px;
+    border-left: solid #000000 1px;
+    border-right: solid #000000 1px;
+}
+
+a.dropdown-toggle, li.notification {
+    cursor: pointer;
+}
+
+li.notification.unseen, li.conversation.unred-messages {
+    background-color: #f5ecce;
+}
+
+p.notification-item {
+    line-height: 1.5em;
+    max-height: 3em;
+    overflow: hidden;
+    display: block;
+}
+
+.notification-item {
+    margin: 0 0 0 0 !important;
+}
+
+#see-all-notifications {
+    cursor: pointer;
+}
+
+li.search-li {
+    width: 55%;
+}
+
+a.search-a {
+    padding: 5px !important;
+}
+
+#search-box {
+    height: 100%;
+}
+
+.search-results-container {
+    z-index: 1051;
+    background-color: #ffffff;
+    border: solid #000000 1px;
+    display: none;
+    position: absolute;
+    width: calc(100% - 10px);
+}
+
+.search-result {
+    padding: 3px;
+    height: 60px;
+    border-bottom: dashed #d2d6de 1px;
+    cursor: pointer;
+	position: relative;
+}
+
+.search-result.focused {
+    background-color: #ecf0f5;
+    border-style: solid;
+    border-color: #367fa9;
+    border-width: 1px;
+}
+
+.search-result img {
+	height: 50px;
+	width: 50px;
+	border: solid #000000 1px;
+}
+
+.search-result a {
+    color: #000000 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.search-result div.data {
+    position: absolute;
+    top: 0;
+    padding-left: 55px;
+	padding-top: 5px;
+}
+
+.search-result a.extra-data {
+    color: #808080 !important;
+    font-size: 10px;
+}
+
+.search-result div.contact-status {
+    display: inline-block;
+}
+
+.modal-dialog.property-details, .modal-dialog.contact-details, .modal-dialog.search, .modal-dialog.files {
+    width: 95%;
+}
+
+.modal-body .body-content, p.message {
+    word-wrap: break-word;
+}
+
+.modal-dialog {
+    overflow-y: initial !important
+}
+
+.modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    background-color: #ecf0f5;
+}
+
+.modal-header {
+    background-color: #367fa9;
+}
+
+.modal-header h4, .modal-header h4 a, .modal-header h6 {
+    color: #ffffff;
+}
+
+.panel-danger .modal-header h4 {
+    color: #a94442;
+}
+
+.panel-warning .modal-header h4 {
+    color: #8a6d3b;
+}
+
+.panel-success .modal-header h4 {
+    color: #3c763d;
+}
+
+.modal-header h4 a {
+    cursor: pointer;
+}
+
+.modal-header h4 a:hover {
+    color: grey;
+}
+
+.contact-actions {
+    font-weight: normal;
+    font-size: 11px;
+}
+
+.chat .item > .chat-warning {
+    border: 2px solid #f0ad4e;
+}
+
+.chat .item > .chat-primary {
+    border: 2px solid #006dcc;
+}
+
+.chat .item > .chat-default {
+    border: 2px solid #d2d6de;
+}
+
+div.company-logo {
+    padding: 2px;
+}
+
+img.company-logo {
+    width: 100%;
+    max-width: 300px;
+    height: 50px;
+    border: solid #000000 1px;
+}
+
+form.company-logo {
+    background-color: #ffffff;
+    height: 50px;
+    min-height: 50px !important;
+    padding: 1px !important;
+    border: solid #000000 1px;
+    max-width: 300px;
+}
+
+form.company-logo .dz-message {
+    margin: 0 !important;
+}
+
+.custom-table-style thead {
+    background-color: #08088A;
+}
+
+.custom-table-style thead tr, .custom-table-style tbody {
+    border: solid #000000 2px;
+}
+
+.custom-table-style thead tr {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #08088A;
+}
+
+.custom-table-style tr.even {
+    color: #000000;
+    background-color: #ffffff;
+}
+
+.dark-hr {
+    color: #000000;
+    background-color: #000000;
+}
+
+img.blueimp-gallery-link {
+    width: 100px;
+    height: 100px;
+    border: solid #000000 1px;
+}
+
+img.blueimp-gallery-link:hover {
+    opacity: 0.4;
+}
+
+img.property, img.contact {
+    padding: 0px !important;
+}
+
+.img-link {
+    padding: 1px;
+    display: inline-block;
+}
+
+.img-link b {
+    cursor: pointer;
+}
+
+.img-link b.remove-image {
+    color: #a94442;
+}
+
+a.name {
+    font-size: 11px;
+}
+
+a.owner, a.agent, a#edit-attributes {
+    cursor: pointer;
+}
+
+i#cancel-assign-owner, a#unbind-owner, i#cancel-assign-agent, a#unbind-agent {
+    cursor: pointer;
+    color: #dd4b39;
+}
+
+a#unbind-owner:hover, a#unbind-owner:focus, a#unbind-agent:hover, a#unbind-agent:focus {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+a.assign-owner-search-item:focus, a.assign-owner-search-item:hover, a.assign-agent-search-item:focus, a.assign-agent-search-item:hover {
+    text-decoration: underline;
+    color: orange;
+}
+
+.select2-container {
+    width: 100%;
+}
+
+.box-header h5 {
+    font-size: 14px !important;
+}
+
+.search-section-title a.search-section-show-hide {
+    cursor: pointer;
+    color: #08088A;
+    font-size: 16px;
+    font-wight: bold;
+}
+
+.search-section-title a.search-section-show-hide:hover {
+    color: #808080;
+}
+
+.search-section-title a.search-section-show-hide i {
+    font-size: 12px;
+}
+
+.search-result-box-header, .search-result-box-body {
+    border-style: solid;
+    border-color: #d2d6de;
+    border-width: 1px;
+}
+
+.search-result-box-body {
+    font-size: 12px;
+    position: relative;
+}
+
+.property-attributes {
+    font-size: 10px;
+    font-weight: bold;
+    color: #808080;
+}
+
+.search-result-box-body img {
+    width: 40%;
+    height: 85%;
+    border: solid #000000 1px;
+    position: absolute;
+    top: 5px;
+}
+
+.search-result-box-body .property-data {
+    padding-left: 45%;
+}
+
+.common-attribute-form-group {
+    padding: 2px;
+    border: solid #000000 1px;
+}
+
+i.clear-values {
+    color: #a94442;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+a#show-filter-history, a#remove-history-filters {
+    cursor: pointer;
+}
+
+#file-modal {
+    z-index: 1051;
+}
+
+div.contact-status {
+    text-align: center;
+    border-radius: 0.25em;
+    font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-weight: bold;
+    padding-bottom: 1px;
+    padding-left: 6.3px;
+    padding-right: 6.3px;
+    padding-top: 1px;
+}
+
+div.contact-status-actions-container {
+    z-index: 1050;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    position: absolute;
+    width: calc(100% - 30px);
+}
+
+div.contact-status-action {
+    cursor: pointer;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+div.contact-status-action:hover {
+    background-color: #ecf0f5;
+    border-style: solid;
+    border-color: #367fa9;
+    border-width: 1px;
+}
+
+div.contact-status-action.not-last {
+    border-bottom: dashed #d2d6de 1px;
+}

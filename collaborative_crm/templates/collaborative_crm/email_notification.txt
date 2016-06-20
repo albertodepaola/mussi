@@ -1,0 +1,20 @@
+{{notification.data.short_description}}
+
+LinkedProp
+Notificación
+{{notification.data.short_description}}
+
+{{notification.data.description}}
+
+{% if url %}Ver en LinkedProp: {{url}}
+{% else %}Ir a LinkedProp: {{link_to_login}}{% endif %}
+
+¿Recibido por error?
+Si usted no es {{notification.user.full_name_reversed}}, por favor contáctenos para aclarar el error y elimine este correo. Gracias
+
+Contáctenos
+Email: {{linked_prop_email}}
+Tél: {{linked_prop_telephone}}
+
+
+LinkedProp - Copyright © 2016 Todos los derechos reservados

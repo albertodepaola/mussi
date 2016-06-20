@@ -1,0 +1,13 @@
+.tooltipster-validation {
+	border-radius: 5px; 
+	border: 1px solid #000000;
+	background: #DF0101;
+	color: #FFFFFF;
+}
+.tooltipster-validation .tooltipster-content {
+	font-family: Arial, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 16px;
+	padding: 2px 3px;
+}

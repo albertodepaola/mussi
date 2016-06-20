@@ -1,0 +1,130 @@
+{% extends 'collaborative_crm/base.html' %}
+{% load staticfiles %}
+{% load collaborative_crm_extras %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li class="active"><a href="/crm/">Home</a></li>
+        <li class="active"><a href="/crm/mi_empresa/configuracion"><i class="fa fa-university"></i> Mi Empresa</a></li>
+        <li class="active"><a href="/crm/mi_empresa/sucursales"><i class="fa fa-home"></i> Sucursales</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <form id="branch-info" name="branch-info" company-id="{{company.id}}" action="/crm/empresa/{{company.id}}/sucursales/{{selected_branch.id}}/actualizar_datos" method="POST">
+                {% csrf_token %}
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 id="branch-box-title" class="box-title"> {{selected_branch.name|default:'Nueva Sucursal'}}</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="type">Sucursal</label>
+                                    <select class="form-control" id="branch" name="branch" required>
+                                        <option value="0"{% if selected_branch.id == 0 %} selected{% endif %}>Nueva</option>
+                                        {% for branch in company.branches %}
+                                            <option value="{{branch.id}}"{% if selected_branch.id == branch.id %} selected{% endif %}>{{branch.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="code">Código</label>
+                                    <input type="text" class="form-control" id="code" name="code" placeholder="Código" value="{{selected_branch.code}}">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="name">Nombre</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Nombre" value="{{selected_branch.name}}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="country">País</label>
+                                    <select class="form-control" id="country" name="country" placeholder="País" value="{{selected_branch.country_id}}">
+                                        {% for country in countries %}
+                                            <option value="{{country.id}}">{{country.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="state">Provincia/Estado</label>
+                                    <select class="form-control" id="state" name="state" placeholder="Provincia/Estado" value="{{selected_branch.state_id}}">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="city">Ciudad</label>
+                                    <select class="form-control" id="city" name="city" placeholder="Ciudad" value="{{selected_branch.city.id}}">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="address">Dirección</label>
+                                    <input type="text" class="form-control" id="address" name="address" placeholder="Dirección" value="{{selected_branch.address}}">
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label for="description">Descripción</label>
+                                    <textarea type="text" rows="6" class="form-control" id="description" name="description" placeholder="Descripción">{{selected_branch.description|default:''}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-success" id="save-branch">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-danger pull-right" id="remove-branch" style="display: {% if selected_branch.id != 0 %}block{% else %}none{% endif %};">
+                            <i class="fa fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade remove-branch-modal" id="remove-branch-modal" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span data-dismiss="modal" aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> Confirmar borrado</h4>
+                </div>
+                <div class="modal-body panel-heading body-content">
+                    ¿Confirma qué desea eliminar la sucursal?
+                </div>
+                <div class="modal-footer panel-heading">
+                    <button class="btn btn-danger" id="confirm-remove" data-dismiss="modal">Confirmar</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block imports %}
+    <!--Select2-->
+    <link rel="stylesheet" href="{% static 'collaborative_crm/select2/css/select2.min.css' %}">
+    <script src="{% static 'collaborative_crm/select2/js/select2.min.js' %}"></script>
+    <!--Template Specific-->
+    <!--<link rel="stylesheet" href="{% static 'collaborative_crm/templates/css/contact.css' %}">-->
+    <script src="{% static 'collaborative_crm/templates/js/my_company_branches.js' %}"></script>
+{% endblock %}

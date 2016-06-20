@@ -1,0 +1,44 @@
+{% load collaborative_crm_extras %}
+
+<div id="search-results" search-id="{{search.id}}" title="{{search}}" date="{{search.date|utc_to_local_tz:'%d/%m/%Y'}}">
+    {% if search_results %}
+        <div class="row">
+            {% for property in search_results|sort_by:'-last_modified.timestamp' %}
+                <div class="col-md-6 col-xs-12 result-box-col">
+                    <div class="box box-success">
+                        <div class="box-header with-border search-result-box-header">
+                            <h3 class="box-title"><b>{{property.anonymous_address|default:property}}</b></h3>&nbsp;&nbsp;
+                            <a class="search-result-show-property-details" property-id="{{property.id}}"{% if search.contact|is_owner:property %} relationship="owner"{% elif search.contact|is_interested:property %} relationship="interested"{% endif %}>Ver</a>
+                            <div class="pull-right">
+                                <span class="label label-{% if property.status.id == 2 %}danger{% elif property.status.id == 3 %}warning{% elif property.status.id == 1 %}success{% else %}primary{% endif %}">
+                                    {{property.status.name}}
+                                </span>
+                            </div>
+                            {% if search.contact %}
+                                {% if search.contact|is_owner:property and user|permissions_over:property %}
+                                    &nbsp;&nbsp;<span class="label label-warning">Dueño</span>
+                                {% elif search.contact|is_interested:property %}
+                                    &nbsp;&nbsp;<span class="label label-success">Interesado</span>
+                                {% endif %}
+                                <div class="box-tools pull-right">
+                                    <button class="btn btn-box-tool">
+                                        <i class="fa fa-times remove-search-result"></i>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="box-body search-result-box-body">
+                            <div class="property-data">
+                                {% include 'collaborative_crm/property_details.html' %}
+                                <button class="property-file-button btn btn-xs btn-primary" property-id="{{property.id}}"><i class="fa fa-file-excel-o"></i> <i class="fa fa-file-pdf-o"></i> Ficha Excel /  PDF</button>
+                            </div>
+                            <img src="{{property.cover_image.image_url|default:'/static/collaborative_crm/images/misc/default_property.png'}}" />
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <label>No hay resultados con los criterios seleccionados</label>
+    {% endif %}
+</div>

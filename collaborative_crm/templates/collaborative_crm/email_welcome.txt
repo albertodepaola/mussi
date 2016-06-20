@@ -1,0 +1,20 @@
+Bienvenido a LinkedProp
+
+LinkedProp
+¡Bienvenido!
+{{created_user.full_name_reversed}}, ya podes acceder a LinkedProp con tu email
+
+
+¡Bienvenido a LinkedProp!
+{{created_user.full_name_reversed}}, ya podes acceder a LinkedProp con tu email {{created_user.username}}
+Tu password es <b>{{password}}
+Recomendamos cambiar este password al ingresar al sistema.
+
+Ir a LinkedProp: {{link_to_login}}
+
+¿Recibido por error?
+Si usted no es {{created_user.full_name_reversed}}, por favor contáctenos para aclarar el error y elimine este correo. Gracias
+
+Contáctenos
+Email: {{linked_prop_email}}
+Tél: {{linked_prop_telephone}}

@@ -1,0 +1,26 @@
+<li id="notifications" class="dropdown messages-menu pull-right">
+    <a class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-bell-o"></i>
+        <span id="unseen-notifications" class="label label-warning" style="display: {% if user.unseen_notifications %}block{% else %}none{% endif %};">{{user.unseen_notifications|length}}</span>
+    </a>
+    <ul class="dropdown-menu">
+        <li class="header">{% if user.unseen_notifications %}Tiene {{user.unseen_notifications|length}} notificaci{% if user.unseen_notifications|length > 1 %}ones  pendientes{% else %}ón  pendiente{% endif %}{% else %}No tiene notificaciones pendientes{% endif %}</li>
+        <li>
+            <ul class="menu">
+                {% for notification in user.notifications_last_15_to_show %}
+                    <li id="{{notification.id}}" class="notification{% if not notification.seen %} unseen{% endif %}">
+                        <a>
+                            <h4 class="notification-item">
+                                {{notification.data.title}}
+                                <small><i class="fa fa-clock-o"></i> {{notification.time_ago}}</small>
+                            </h4>
+                            <p class="notification-item">{{notification.data.short_description}}</p>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li class="footer"><a id="see-all-notifications">Marcar todas como vistas</a></li>
+        <!--<li class="footer"><a href="#">Ver todas</a></li>-->
+    </ul>
+</li>
